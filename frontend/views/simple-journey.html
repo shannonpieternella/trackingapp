@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Journey - UTM Tracker</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .journey-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .session-path {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.2s;
+    }
+    
+    .session-path:hover {
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .session-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .visitor-badge {
+      background: #e0e7ff;
+      color: #4338ca;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .source-badge {
+      background: #dcfce7;
+      color: #166534;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    
+    .time-badge {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    .path-flow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+    
+    .page-node {
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      padding: 8px 16px;
+      border-radius: 6px;
+      white-space: nowrap;
+      font-size: 14px;
+      min-width: fit-content;
+    }
+    
+    .page-node.entry {
+      background: #dbeafe;
+      border-color: #60a5fa;
+      font-weight: 600;
+    }
+    
+    .page-node.exit {
+      background: #fee2e2;
+      border-color: #f87171;
+    }
+    
+    .path-arrow {
+      color: #9ca3af;
+      font-size: 18px;
+    }
+    
+    .session-stats {
+      display: flex;
+      gap: 30px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 14px;
+    }
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .stat-label {
+      color: #6b7280;
+    }
+    
+    .stat-value {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .source-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .source-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    
+    .source-card h4 {
+      margin: 0 0 15px 0;
+      color: #1f2937;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .source-count {
+      background: #3b82f6;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    
+    .filter-bar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    
+    .filter-bar select {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+    
+    .empty-state h3 {
+      color: #374151;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/dashboard" class="logo">UTM Tracker</a>
+        
+        <ul class="nav-links">
+          <li><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/journey" class="active">User Journey</a></li>
+          <li><a href="/setup-generator">Get Tracking Code</a></li>
+        </ul>
+
+        <div class="user-menu">
+          <span id="userName" class="text-secondary"></span>
+          <button class="btn btn-outline btn-sm" onclick="api.logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mt-6">
+    <div class="journey-container">
+      <div class="card mb-6">
+        <div class="card-header">
+          <h2 class="card-title">User Journey Visualization</h2>
+          <p class="text-secondary">See how visitors navigate through your website</p>
+        </div>
+
+        <!-- Summary by Source -->
+        <div id="sourceSummary" class="source-summary">
+          <!-- Will be populated by JS -->
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <select id="sourceFilter" onchange="filterSessions()">
+            <option value="">All Sources</option>
+          </select>
+          <select id="pageFilter" onchange="filterSessions()">
+            <option value="">All Page Counts</option>
+            <option value="1">Single Page (Bounce)</option>
+            <option value="2-3">2-3 Pages</option>
+            <option value="4+">4+ Pages</option>
+          </select>
+          <span class="text-secondary">Showing: <strong id="sessionCount">0</strong> sessions</span>
+        </div>
+
+        <!-- Session Paths -->
+        <div id="sessionPaths">
+          <div class="empty-state">
+            <h3>No visitor journeys yet</h3>
+            <p>Once you have tracking installed, visitor paths will appear here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script>
+    // Check authentication
+    if (!localStorage.getItem('utm_token')) {
+      window.location.href = '/';
+    }
+
+    // Set user name
+    const user = JSON.parse(localStorage.getItem('utm_user') || '{}');
+    document.getElementById('userName').textContent = user.name || user.email || '';
+
+    let allSessions = [];
+    let sourceCounts = {};
+
+    // Load all sessions
+    async function loadJourneys() {
+      try {
+        const data = await api.getSessions({ limit: 100 });
+        allSessions = data.sessions || [];
+        
+        // Calculate source summary
+        sourceCounts = {};
+        const sourceFilterSelect = document.getElementById('sourceFilter');
+        sourceFilterSelect.innerHTML = '<option value="">All Sources</option>';
+        
+        allSessions.forEach(session => {
+          const source = session.utm?.source || 'direct';
+          if (!sourceCounts[source]) {
+            sourceCounts[source] = {
+              count: 0,
+              totalPages: 0,
+              totalDuration: 0,
+              bounced: 0
+            };
+          }
+          sourceCounts[source].count++;
+          sourceCounts[source].totalPages += session.pageViews || 0;
+          sourceCounts[source].totalDuration += session.duration || 0;
+          if (session.bounced) sourceCounts[source].bounced++;
+        });
+        
+        // Display source summary
+        const summaryHtml = Object.entries(sourceCounts).map(([source, data]) => {
+          const avgPages = (data.totalPages / data.count).toFixed(1);
+          const avgDuration = (data.totalDuration / data.count).toFixed(0);
+          const bounceRate = ((data.bounced / data.count) * 100).toFixed(0);
+          
+          // Add to filter dropdown
+          const option = document.createElement('option');
+          option.value = source;
+          option.textContent = source;
+          sourceFilterSelect.appendChild(option);
+          
+          return `
+            <div class="source-card">
+              <h4>${source} <span class="source-count">${data.count}</span></h4>
+              <div class="stat-item">
+                <span class="stat-label">Avg Pages:</span>
+                <span class="stat-value">${avgPages}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Avg Duration:</span>
+                <span class="stat-value">${avgDuration}s</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Bounce Rate:</span>
+                <span class="stat-value">${bounceRate}%</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        document.getElementById('sourceSummary').innerHTML = summaryHtml || '<p class="text-secondary">No traffic sources found</p>';
+        
+        // Display all sessions initially
+        displaySessions(allSessions);
+        
+      } catch (error) {
+        console.error('Failed to load journeys:', error);
+        document.getElementById('sessionPaths').innerHTML = '<p class="text-danger text-center">Failed to load journey data</p>';
+      }
+    }
+
+    // Display sessions
+    function displaySessions(sessions) {
+      if (!sessions || sessions.length === 0) {
+        document.getElementById('sessionPaths').innerHTML = `
+          <div class="empty-state">
+            <h3>No sessions match your filters</h3>
+            <p>Try adjusting the filters above.</p>
+          </div>
+        `;
+        document.getElementById('sessionCount').textContent = '0';
+        return;
+      }
+      
+      document.getElementById('sessionCount').textContent = sessions.length;
+      
+      const pathsHtml = sessions.map(session => {
+        const visitorShort = session.visitorId ? session.visitorId.substring(0, 8) : 'Unknown';
+        const source = session.utm?.source || 'direct';
+        const medium = session.utm?.medium || 'none';
+        const campaign = session.utm?.campaign || '';
+        
+        // Create page path
+        let pathHtml = '';
+        if (session.pages && session.pages.length > 0) {
+          pathHtml = session.pages.map((page, index) => {
+            const isEntry = index === 0;
+            const isExit = index === session.pages.length - 1;
+            const className = isEntry ? 'entry' : (isExit ? 'exit' : '');
+            return `
+              ${index > 0 ? '<span class="path-arrow">→</span>' : ''}
+              <div class="page-node ${className}">
+                ${page.url || '/'}
+              </div>
+            `;
+          }).join('');
+        } else if (session.entryPage || session.exitPage) {
+          // Fallback for sessions without detailed page data
+          pathHtml = `
+            <div class="page-node entry">${session.entryPage?.url || '/'}</div>
+            ${session.pageViews > 1 ? `
+              <span class="path-arrow">→</span>
+              <div class="page-node">${session.pageViews - 2} more page${session.pageViews - 2 !== 1 ? 's' : ''}</div>
+              <span class="path-arrow">→</span>
+              <div class="page-node exit">${session.exitPage?.url || session.entryPage?.url || '/'}</div>
+            ` : ''}
+          `;
+        } else {
+          pathHtml = '<div class="page-node">No page data</div>';
+        }
+        
+        return `
+          <div class="session-path">
+            <div class="session-header">
+              <div class="session-info">
+                <span class="visitor-badge">Visitor: ${visitorShort}</span>
+                <span class="source-badge">${source}/${medium}</span>
+                ${campaign ? `<span class="text-secondary">${campaign}</span>` : ''}
+              </div>
+              <span class="time-badge">${formatDate(session.startTime)}</span>
+            </div>
+            
+            <div class="path-flow">
+              ${pathHtml}
+            </div>
+            
+            <div class="session-stats">
+              <div class="stat-item">
+                <span class="stat-label">Pages viewed:</span>
+                <span class="stat-value">${session.pageViews || 0}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Duration:</span>
+                <span class="stat-value">${formatDuration(session.duration || 0)}</span>
+              </div>
+              ${session.bounced ? '<span class="stat-item" style="color: #ef4444;">Bounced</span>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('sessionPaths').innerHTML = pathsHtml;
+    }
+
+    // Filter sessions
+    function filterSessions() {
+      const sourceFilter = document.getElementById('sourceFilter').value;
+      const pageFilter = document.getElementById('pageFilter').value;
+      
+      let filtered = allSessions;
+      
+      // Filter by source
+      if (sourceFilter) {
+        filtered = filtered.filter(session => {
+          const source = session.utm?.source || 'direct';
+          return source === sourceFilter;
+        });
+      }
+      
+      // Filter by page count
+      if (pageFilter) {
+        filtered = filtered.filter(session => {
+          const pages = session.pageViews || 0;
+          if (pageFilter === '1') return pages === 1;
+          if (pageFilter === '2-3') return pages >= 2 && pages <= 3;
+          if (pageFilter === '4+') return pages >= 4;
+          return true;
+        });
+      }
+      
+      displaySessions(filtered);
+    }
+
+    // Format duration
+    function formatDuration(seconds) {
+      if (seconds < 60) return `${seconds}s`;
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${minutes}m ${secs}s`;
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+      
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // Load data on page load
+    loadJourneys();
+    
+    // Refresh every 30 seconds
+    setInterval(loadJourneys, 30000);
+  </script>
+</body>
+</html>

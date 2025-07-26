@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Tracking Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Fix for stretching issue */
+    .chart-container {
+      height: 300px !important;
+      max-height: 300px !important;
+      overflow: hidden;
+    }
+    
+    #trafficChart, #conversionChart {
+      max-height: 300px !important;
+    }
+    
+    /* Simplified navigation */
+    .nav-links {
+      gap: 30px;
+    }
+    
+    /* Success message for tracking */
+    .tracking-active {
+      background: #d1fae5;
+      border: 1px solid #34d399;
+      color: #065f46;
+      padding: 10px 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    /* Journey preview */
+    .journey-preview {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .source-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .source-item:last-child {
+      border-bottom: none;
+    }
+    
+    .source-name {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .source-sessions {
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/dashboard" class="logo">UTM Tracker</a>
+        
+        <ul class="nav-links">
+          <li><a href="/dashboard" class="active">Dashboard</a></li>
+          <li><a href="/journey">User Journey</a></li>
+          <li><a href="/setup-generator">Get Tracking Code</a></li>
+        </ul>
+
+        <div class="user-menu">
+          <span id="userName" class="text-secondary"></span>
+          <button class="btn btn-outline btn-sm" onclick="api.logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mt-6">
+    <!-- Analytics Overview -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <h2 class="card-title">Analytics Overview</h2>
+        <div class="text-secondary">Track your marketing performance</div>
+      </div>
+
+      <!-- API Key Section -->
+      <div class="api-section">
+        <p><strong>Your API Key:</strong> <code id="apiKey">utm_Q9Oi2TSYzFb0mLhVx8Qsy6EPGkyGQtZe</code>
+          <button class="btn btn-sm btn-outline" onclick="copyApiKey()">Copy</button>
+        </p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Sessions</div>
+          <div class="stat-value" id="totalSessions">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unique Visitors</div>
+          <div class="stat-value" id="uniqueVisitors">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Page Views</div>
+          <div class="stat-value" id="pageViews">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Session Duration</div>
+          <div class="stat-value" id="avgDuration">0s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Traffic Sources -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <h3 class="card-title">Traffic Sources</h3>
+      </div>
+      <div class="journey-preview" id="trafficSources">
+        <p class="text-secondary text-center">No traffic data yet. Make sure tracking is installed on your website.</p>
+      </div>
+    </div>
+
+    <!-- Recent Sessions -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Recent Sessions</h3>
+      </div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Visitor</th>
+              <th>Source</th>
+              <th>Campaign</th>
+              <th>Pages</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="sessionsTable">
+            <tr>
+              <td colspan="6" class="text-center text-secondary">Loading sessions...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script>
+    // Check authentication
+    if (!localStorage.getItem('utm_token')) {
+      window.location.href = '/';
+    }
+
+    // Set user name
+    const user = JSON.parse(localStorage.getItem('utm_user') || '{}');
+    document.getElementById('userName').textContent = user.name || user.email || '';
+
+    // Copy API key
+    function copyApiKey() {
+      const apiKey = document.getElementById('apiKey').textContent;
+      navigator.clipboard.writeText(apiKey).then(() => {
+        event.target.textContent = 'Copied!';
+        setTimeout(() => {
+          event.target.textContent = 'Copy';
+        }, 2000);
+      });
+    }
+
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        const data = await api.getDashboard();
+
+        // Update stats
+        document.getElementById('totalSessions').textContent = data.totalSessions || 0;
+        document.getElementById('uniqueVisitors').textContent = data.uniqueVisitors || 0;
+        document.getElementById('pageViews').textContent = data.pageViews || 0;
+        document.getElementById('avgDuration').textContent = formatDuration(data.avgDuration || 0);
+
+        // Update traffic sources
+        if (data.trafficSources && data.trafficSources.length > 0) {
+          const sourcesHtml = data.trafficSources.map(source => `
+            <div class="source-item">
+              <span class="source-name">${source.source}/${source.medium}</span>
+              <span class="source-sessions">${source.sessions} sessions</span>
+            </div>
+          `).join('');
+          document.getElementById('trafficSources').innerHTML = sourcesHtml;
+        }
+
+        // Update sessions table
+        if (data.recentSessions && data.recentSessions.length > 0) {
+          const sessionsHtml = data.recentSessions.map(session => `
+            <tr>
+              <td>${formatDate(session.startTime)}</td>
+              <td>${session.visitorId.substring(0, 8)}...</td>
+              <td>${session.utm?.source || 'direct'}</td>
+              <td>${session.utm?.campaign || '-'}</td>
+              <td>${session.pageViews}</td>
+              <td>${formatDuration(session.duration)}</td>
+            </tr>
+          `).join('');
+          document.getElementById('sessionsTable').innerHTML = sessionsHtml;
+        } else {
+          document.getElementById('sessionsTable').innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center text-secondary">No sessions recorded yet</td>
+            </tr>
+          `;
+        }
+      } catch (error) {
+        console.error('Failed to load dashboard:', error);
+      }
+    }
+
+    // Format duration
+    function formatDuration(seconds) {
+      if (seconds < 60) return `${seconds}s`;
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${minutes}m ${secs}s`;
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    }
+
+    // Load data on page load
+    loadDashboard();
+    
+    // Refresh every 30 seconds
+    setInterval(loadDashboard, 30000);
+  </script>
+</body>
+</html>

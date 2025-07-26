@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Tracking Platform - Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container" style="max-width: 400px; margin-top: 5rem;">
+    <div class="card">
+      <div class="text-center mb-6">
+        <h1 class="logo" style="font-size: 2rem;">UTM Tracker</h1>
+        <p class="text-secondary">Track, analyze, and optimize your marketing campaigns</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" class="form-input" required placeholder="you@example.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" class="form-input" required placeholder="••••••••">
+        </div>
+
+        <div class="alert alert-error hidden" id="errorAlert"></div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          <span id="btnText">Sign In</span>
+          <span class="spinner hidden" id="btnSpinner"></span>
+        </button>
+
+        <div class="text-center mt-4">
+          <a href="#" id="showRegister" style="color: var(--primary-color); text-decoration: none;">
+            Don't have an account? Sign up
+          </a>
+        </div>
+      </form>
+
+      <!-- Register Form (Hidden by default) -->
+      <form id="registerForm" class="hidden">
+        <div class="form-group">
+          <label class="form-label" for="regName">Full Name</label>
+          <input type="text" id="regName" class="form-input" required placeholder="John Doe">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regEmail">Email</label>
+          <input type="email" id="regEmail" class="form-input" required placeholder="you@example.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regPassword">Password</label>
+          <input type="password" id="regPassword" class="form-input" required placeholder="••••••••">
+          <p class="form-hint">Minimum 6 characters</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regOrganization">Organization (Optional)</label>
+          <input type="text" id="regOrganization" class="form-input" placeholder="Your Company">
+        </div>
+
+        <div class="alert alert-error hidden" id="regErrorAlert"></div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          <span id="regBtnText">Create Account</span>
+          <span class="spinner hidden" id="regBtnSpinner"></span>
+        </button>
+
+        <div class="text-center mt-4">
+          <a href="#" id="showLogin" style="color: var(--primary-color); text-decoration: none;">
+            Already have an account? Sign in
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    // Toggle between login and register forms
+    document.getElementById('showRegister').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('registerForm').classList.remove('hidden');
+    });
+
+    document.getElementById('showLogin').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('registerForm').classList.add('hidden');
+      document.getElementById('loginForm').classList.remove('hidden');
+    });
+
+    // Handle login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorAlert = document.getElementById('errorAlert');
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+      
+      // Show loading state
+      btnText.classList.add('hidden');
+      btnSpinner.classList.remove('hidden');
+      errorAlert.classList.add('hidden');
+      
+      try {
+        await api.login(email, password);
+        window.location.href = '/dashboard';
+      } catch (error) {
+        errorAlert.textContent = error.message || 'Login failed. Please try again.';
+        errorAlert.classList.remove('hidden');
+      } finally {
+        btnText.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    });
+
+    // Handle registration
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      const organization = document.getElementById('regOrganization').value;
+      const errorAlert = document.getElementById('regErrorAlert');
+      const btnText = document.getElementById('regBtnText');
+      const btnSpinner = document.getElementById('regBtnSpinner');
+      
+      // Show loading state
+      btnText.classList.add('hidden');
+      btnSpinner.classList.remove('hidden');
+      errorAlert.classList.add('hidden');
+      
+      try {
+        await api.register({ name, email, password, organization });
+        window.location.href = '/dashboard';
+      } catch (error) {
+        errorAlert.textContent = error.message || 'Registration failed. Please try again.';
+        errorAlert.classList.remove('hidden');
+      } finally {
+        btnText.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    });
+
+    // Check if already logged in
+    if (localStorage.getItem('utm_token')) {
+      window.location.href = '/dashboard';
+    }
+  </script>
+</body>
+</html>

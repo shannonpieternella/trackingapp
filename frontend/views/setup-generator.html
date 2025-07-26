@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get Tracking Code - UTM Tracker</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .generator-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .input-section {
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      margin: 30px 0;
+    }
+    
+    .domain-input {
+      display: flex;
+      gap: 15px;
+      max-width: 500px;
+      margin: 20px auto;
+    }
+    
+    .domain-input input {
+      flex: 1;
+      padding: 12px 20px;
+      font-size: 18px;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+    }
+    
+    .domain-input input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    
+    .btn-generate {
+      padding: 12px 30px;
+      font-size: 18px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    
+    .btn-generate:hover {
+      background: #2563eb;
+    }
+    
+    .output-section {
+      display: none;
+      margin-top: 40px;
+    }
+    
+    .code-block {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      position: relative;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 20px 0;
+    }
+    
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .copy-btn:hover {
+      background: #2563eb;
+    }
+    
+    .copy-btn.copied {
+      background: #10b981;
+    }
+    
+    .success-message {
+      background: #d1fae5;
+      border: 1px solid #34d399;
+      color: #065f46;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .test-urls {
+      background: #f3f4f6;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    
+    .test-urls h4 {
+      margin-bottom: 15px;
+      color: #1f2937;
+    }
+    
+    .url-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .url-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+    
+    .url-label {
+      font-weight: 600;
+      min-width: 100px;
+      color: #374151;
+    }
+    
+    .url-link {
+      flex: 1;
+      color: #3b82f6;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    
+    .url-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/dashboard" class="logo">UTM Tracker</a>
+        
+        <ul class="nav-links">
+          <li><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/journey">User Journey</a></li>
+          <li><a href="/setup-generator" class="active">Get Tracking Code</a></li>
+        </ul>
+
+        <div class="user-menu">
+          <span id="userName" class="text-secondary"></span>
+          <button class="btn btn-outline btn-sm" onclick="api.logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mt-6">
+    <div class="generator-container">
+      <div class="card">
+        <div class="card-header text-center">
+          <h1 class="card-title">Get Your Tracking Code</h1>
+          <p class="text-secondary">Generate tracking code for your website in seconds</p>
+        </div>
+
+        <div class="input-section">
+          <h3>Enter your website domain:</h3>
+          <div class="domain-input">
+            <input type="text" id="domainInput" placeholder="example.com" autofocus>
+            <button class="btn-generate" onclick="generateCode()">Generate Code</button>
+          </div>
+        </div>
+
+        <div id="outputSection" class="output-section">
+          <div class="success-message">
+            ✅ Tracking code generated successfully!
+          </div>
+
+          <h3>Step 1: Copy this code</h3>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode()">Copy</button>
+            <pre id="trackingCode"></pre>
+          </div>
+
+          <h3>Step 2: Add to your website</h3>
+          <p>Paste the code in the <code>&lt;head&gt;</code> section of every page you want to track.</p>
+
+          <h3>Step 3: Test your tracking</h3>
+          <div class="test-urls">
+            <h4>Visit your website with these test URLs:</h4>
+            <div id="testUrls" class="url-list"></div>
+          </div>
+
+          <div class="card mt-6">
+            <div class="card-header">
+              <h4>What gets tracked?</h4>
+            </div>
+            <ul style="line-height: 1.8; color: #4b5563;">
+              <li>✓ Unique visitors (each person gets a unique ID)</li>
+              <li>✓ Sessions (new session for each visit)</li>
+              <li>✓ UTM parameters (source, medium, campaign)</li>
+              <li>✓ Page views and navigation paths</li>
+              <li>✓ Time spent on site</li>
+              <li>✓ Entry and exit pages</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script>
+    // Check authentication
+    if (!localStorage.getItem('utm_token')) {
+      window.location.href = '/';
+    }
+
+    // Set user name
+    const user = JSON.parse(localStorage.getItem('utm_user') || '{}');
+    document.getElementById('userName').textContent = user.name || user.email || '';
+
+    // Get current tracking URL
+    const TRACKING_URL = 'https://41fa332f6a86.ngrok-free.app';
+
+    function generateCode() {
+      const domain = document.getElementById('domainInput').value.trim();
+      
+      if (!domain) {
+        alert('Please enter your website domain');
+        return;
+      }
+
+      const trackingCode = `<!-- UTM Tracking Code -->
+<script>
+(function() {
+  // Configuration
+  var TRACKING_URL = '${TRACKING_URL}';
+  var DOMAIN = '${domain}';
+  
+  // Generate unique visitor ID (persists across sessions)
+  var visitorId = localStorage.getItem('utm_visitor_id');
+  if (!visitorId) {
+    visitorId = 'v-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('utm_visitor_id', visitorId);
+  }
+  
+  // Generate session ID (new for each browser session)
+  var sessionId = sessionStorage.getItem('utm_session_id');
+  if (!sessionId) {
+    sessionId = 's-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    sessionStorage.setItem('utm_session_id', sessionId);
+  }
+  
+  // Get UTM parameters from URL
+  var urlParams = new URLSearchParams(window.location.search);
+  var utmSource = urlParams.get('utm_source') || localStorage.getItem('utm_source') || 'direct';
+  var utmMedium = urlParams.get('utm_medium') || localStorage.getItem('utm_medium') || 'none';
+  var utmCampaign = urlParams.get('utm_campaign') || localStorage.getItem('utm_campaign') || '';
+  
+  // Store UTM params for the session
+  if (urlParams.get('utm_source')) {
+    localStorage.setItem('utm_source', utmSource);
+    localStorage.setItem('utm_medium', utmMedium);
+    localStorage.setItem('utm_campaign', utmCampaign);
+  }
+  
+  // Send tracking pixel
+  var img = new Image(1, 1);
+  img.src = TRACKING_URL + '/t.gif?' + 
+    'sid=' + encodeURIComponent(sessionId) +
+    '&vid=' + encodeURIComponent(visitorId) +
+    '&d=' + encodeURIComponent(DOMAIN) +
+    '&p=' + encodeURIComponent(window.location.pathname) +
+    '&t=' + encodeURIComponent(document.title) +
+    '&r=' + encodeURIComponent(document.referrer) +
+    '&utm_source=' + encodeURIComponent(utmSource) +
+    '&utm_medium=' + encodeURIComponent(utmMedium) +
+    '&utm_campaign=' + encodeURIComponent(utmCampaign);
+})();
+</script>`;
+
+      // Display the code
+      document.getElementById('trackingCode').textContent = trackingCode;
+
+      // Generate test URLs
+      const baseUrl = domain.startsWith('http') ? domain : 'https://' + domain;
+      const testUrls = [
+        { label: 'Direct:', url: baseUrl },
+        { label: 'Google:', url: `${baseUrl}/?utm_source=google&utm_medium=cpc&utm_campaign=test` },
+        { label: 'Facebook:', url: `${baseUrl}/?utm_source=facebook&utm_medium=social&utm_campaign=test` },
+        { label: 'Email:', url: `${baseUrl}/?utm_source=email&utm_medium=newsletter&utm_campaign=test` }
+      ];
+
+      document.getElementById('testUrls').innerHTML = testUrls.map(item => `
+        <div class="url-item">
+          <span class="url-label">${item.label}</span>
+          <a href="${item.url}" target="_blank" class="url-link">${item.url}</a>
+        </div>
+      `).join('');
+
+      // Show output section
+      document.getElementById('outputSection').style.display = 'block';
+      document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function copyCode() {
+      const code = document.getElementById('trackingCode').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Allow Enter key to generate
+    document.getElementById('domainInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        generateCode();
+      }
+    });
+  </script>
+</body>
+</html>
