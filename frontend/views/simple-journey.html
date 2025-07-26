@@ -516,7 +516,7 @@
     // Load user domains
     async function loadDomains() {
       try {
-        const response = await api.request('/api/domains');
+        const response = await api.request('/domains');
         const { domains } = response;
         
         const select = document.getElementById('domainSelect');
