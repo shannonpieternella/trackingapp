@@ -228,15 +228,22 @@
 
   <script src="/js/api.js"></script>
   <script src="/js/utils.js"></script>
-  <script>
-    // Check authentication
-    if (!localStorage.getItem('utm_token')) {
-      window.location.href = '/';
-    }
+  <script type="text/javascript">
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check authentication
+      if (!localStorage.getItem('utm_token')) {
+        window.location.href = '/';
+        return;
+      }
 
-    // Set user name
-    const user = JSON.parse(localStorage.getItem('utm_user') || '{}');
-    document.getElementById('userName').textContent = user.name || user.email || '';
+      // Set user name
+      const user = JSON.parse(localStorage.getItem('utm_user') || '{}');
+      const userNameEl = document.getElementById('userName');
+      if (userNameEl) {
+        userNameEl.textContent = user.name || user.email || '';
+      }
+    });
 
     // Get current tracking URL
     const TRACKING_URL = 'https://tracking.upsellbusinessagency.com';
