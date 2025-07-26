@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domain Management - UTM Tracker</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .domains-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .add-domain-form {
+      background: #f3f4f6;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+    
+    .domain-input-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .domain-input {
+      flex: 1;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+    }
+    
+    .domain-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    
+    .btn-add {
+      padding: 12px 30px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    
+    .btn-add:hover {
+      background: #2563eb;
+    }
+    
+    .domains-list {
+      display: grid;
+      gap: 20px;
+    }
+    
+    .domain-card {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 25px;
+      position: relative;
+    }
+    
+    .domain-card.verified {
+      border-color: #10b981;
+    }
+    
+    .domain-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .domain-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .domain-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .status-verified {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .domain-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .stat-box {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+    
+    .domain-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .btn-verify {
+      background: #10b981;
+      color: white;
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .btn-verify:hover {
+      background: #059669;
+    }
+    
+    .btn-remove {
+      background: #ef4444;
+      color: white;
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .btn-remove:hover {
+      background: #dc2626;
+    }
+    
+    .verification-instructions {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    
+    .verification-code {
+      background: #1f2937;
+      color: #10b981;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      margin: 10px 0;
+      word-break: break-all;
+    }
+    
+    .no-domains {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+    
+    .no-domains h3 {
+      color: #374151;
+      margin-bottom: 10px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #6b7280;
+    }
+    
+    .error-message {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    
+    .success-message {
+      background: #d1fae5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/dashboard" class="logo">UTM Tracker</a>
+        
+        <ul class="nav-links">
+          <li><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/journey">User Journey</a></li>
+          <li><a href="/utm-builder">UTM Builder</a></li>
+          <li><a href="/domains" class="active">Domains</a></li>
+          <li><a href="/setup-generator">Get Tracking Code</a></li>
+        </ul>
+
+        <div class="user-menu">
+          <span id="userName" class="text-secondary"></span>
+          <button class="btn btn-outline btn-sm" onclick="api.logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mt-6">
+    <div class="domains-container">
+      <h1 class="mb-4">Domain Management</h1>
+      <p class="text-secondary mb-6">Add and manage the domains you want to track. Each domain needs to be verified before tracking data appears.</p>
+
+      <!-- Add Domain Form -->
+      <div class="add-domain-form">
+        <h3>Add New Domain</h3>
+        <p class="text-secondary">Enter your website domain to start tracking</p>
+        <div class="domain-input-group">
+          <input type="text" id="domainInput" class="domain-input" placeholder="example.com or www.example.com">
+          <button class="btn-add" onclick="addDomain()">Add Domain</button>
+        </div>
+        <div id="addMessage"></div>
+      </div>
+
+      <!-- Domains List -->
+      <div id="domainsList" class="domains-list">
+        <div class="loading">Loading domains...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script>
+    // Check authentication
+    if (!localStorage.getItem('utm_token')) {
+      window.location.href = '/';
+    }
+
+    // Set user name
+    const user = JSON.parse(localStorage.getItem('utm_user') || '{}');
+    document.getElementById('userName').textContent = user.name || user.email || '';
+
+    // Domain stats cache
+    let domainStats = {};
+
+    // Load domains on page load
+    loadDomains();
+
+    async function loadDomains() {
+      try {
+        const response = await api.request('/api/domains');
+        const { domains } = response;
+        
+        // Load stats
+        const statsResponse = await api.request('/api/domains/stats');
+        domainStats = {};
+        statsResponse.stats.forEach(stat => {
+          domainStats[stat.domain] = stat;
+        });
+        
+        displayDomains(domains);
+      } catch (error) {
+        console.error('Error loading domains:', error);
+        document.getElementById('domainsList').innerHTML = 
+          '<div class="error-message">Failed to load domains. Please refresh the page.</div>';
+      }
+    }
+
+    function displayDomains(domains) {
+      const container = document.getElementById('domainsList');
+      
+      if (!domains || domains.length === 0) {
+        container.innerHTML = `
+          <div class="no-domains">
+            <h3>No domains yet</h3>
+            <p>Add your first domain to start tracking</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = domains.map(domain => {
+        const stats = domainStats[domain.domain] || { totalSessions: 0, uniqueVisitors: 0 };
+        const isVerified = domain.verified;
+        
+        return `
+          <div class="domain-card ${isVerified ? 'verified' : ''}">
+            <div class="domain-header">
+              <div class="domain-name">${domain.domain}</div>
+              <div class="domain-status ${isVerified ? 'status-verified' : 'status-pending'}">
+                ${isVerified ? '✓ Verified' : '⏳ Pending Verification'}
+              </div>
+            </div>
+            
+            ${isVerified ? `
+              <div class="domain-stats">
+                <div class="stat-box">
+                  <div class="stat-value">${stats.totalSessions}</div>
+                  <div class="stat-label">Total Sessions</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-value">${stats.uniqueVisitors}</div>
+                  <div class="stat-label">Unique Visitors</div>
+                </div>
+              </div>
+            ` : `
+              <div class="verification-instructions">
+                <h4>How to verify this domain:</h4>
+                <ol>
+                  <li>Go to <a href="/setup-generator" target="_blank">Get Tracking Code</a></li>
+                  <li>Generate tracking code for <strong>${domain.domain}</strong></li>
+                  <li>Add the tracking code to your website</li>
+                  <li>Visit your website to generate tracking data</li>
+                  <li>Click "Check Verification" below</li>
+                </ol>
+              </div>
+            `}
+            
+            <div class="domain-actions">
+              ${!isVerified ? `
+                <button class="btn-verify" onclick="verifyDomain('${domain.domain}')">
+                  Check Verification
+                </button>
+              ` : ''}
+              <button class="btn btn-outline btn-sm" onclick="window.location.href='/setup-generator?domain=${domain.domain}'">
+                Get Tracking Code
+              </button>
+              <button class="btn-remove" onclick="removeDomain('${domain.domain}')">
+                Remove Domain
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function addDomain() {
+      const domainInput = document.getElementById('domainInput');
+      const domain = domainInput.value.trim();
+      const messageDiv = document.getElementById('addMessage');
+      
+      if (!domain) {
+        messageDiv.innerHTML = '<div class="error-message">Please enter a domain</div>';
+        return;
+      }
+      
+      try {
+        const response = await api.request('/api/domains/add', {
+          method: 'POST',
+          body: JSON.stringify({ domain })
+        });
+        
+        messageDiv.innerHTML = '<div class="success-message">Domain added successfully!</div>';
+        domainInput.value = '';
+        
+        // Reload domains
+        loadDomains();
+        
+        // Clear message after 3 seconds
+        setTimeout(() => {
+          messageDiv.innerHTML = '';
+        }, 3000);
+      } catch (error) {
+        messageDiv.innerHTML = `<div class="error-message">${error.message || 'Failed to add domain'}</div>`;
+      }
+    }
+
+    async function verifyDomain(domain) {
+      try {
+        const response = await api.request(`/api/domains/verify/${domain}`, {
+          method: 'POST'
+        });
+        
+        alert('Domain verified successfully!');
+        loadDomains();
+      } catch (error) {
+        alert(error.message || 'Verification failed. Make sure you have installed the tracking code and visited your website.');
+      }
+    }
+
+    async function removeDomain(domain) {
+      if (!confirm(`Are you sure you want to remove ${domain}? This will not delete existing tracking data.`)) {
+        return;
+      }
+      
+      try {
+        await api.request(`/api/domains/${domain}`, {
+          method: 'DELETE'
+        });
+        
+        loadDomains();
+      } catch (error) {
+        alert('Failed to remove domain');
+      }
+    }
+  </script>
+</body>
+</html>

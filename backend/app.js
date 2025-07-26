@@ -63,6 +63,7 @@ app.use('/api/analytics', require('./api/analytics'));
 app.use('/api/tracking', require('./api/tracking'));
 app.use('/api/reports', require('./api/reports'));
 app.use('/api/journey', require('./api/journey'));
+app.use('/api/domains', require('./api/domains'));
 
 // Tracking pixel endpoint
 app.get('/t.gif', require('./controllers/tracking').trackPixel);
@@ -89,6 +90,11 @@ app.get('/setup-generator', (req, res) => {
 app.get('/utm-builder', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/views/utm-builder.html'));
 });
+
+app.get('/domains', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/views/domains.html'));
+});
+
 app.get('/campaigns', (req, res) => res.redirect('/dashboard'));
 app.get('/events', (req, res) => res.redirect('/dashboard'));
 app.get('/tracking-setup', (req, res) => res.redirect('/setup-generator'));

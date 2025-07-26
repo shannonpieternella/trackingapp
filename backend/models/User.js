@@ -33,16 +33,22 @@ const userSchema = new mongoose.Schema({
     sparse: true,
   },
   domains: [{
-    domain: String,
+    domain: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true
+    },
     verified: {
       type: Boolean,
       default: false,
     },
-    verificationToken: String,
+    verificationCode: String,
+    verifiedAt: Date,
     addedAt: {
       type: Date,
-      default: Date.now,
-    },
+      default: Date.now
+    }
   }],
   subscription: {
     plan: {
