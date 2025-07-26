@@ -257,7 +257,7 @@
       }
 
       const trackingCode = `<!-- UTM Tracking Code -->
-<script>
+<${'script'}>
 (function() {
   // Configuration
   var TRACKING_URL = '${TRACKING_URL}';
@@ -303,7 +303,7 @@
     '&utm_medium=' + encodeURIComponent(utmMedium) +
     '&utm_campaign=' + encodeURIComponent(utmCampaign);
 })();
-</script>`;
+</${'script'}>`;
 
       // Display the code
       document.getElementById('trackingCode').textContent = trackingCode;
