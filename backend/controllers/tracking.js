@@ -62,22 +62,33 @@ const trackPixel = async (req, res) => {
 
     if (!d || !p) return;
 
-    // Get user from domain
-    let user = await User.findOne({ 'domains.domain': d });
+    // Clean domain (remove www. prefix)
+    const cleanDomain = d.toLowerCase().replace(/^www\./, '');
+    
+    // Get user from domain - try both with and without www
+    let user = await User.findOne({ 
+      $or: [
+        { 'domains.domain': cleanDomain },
+        { 'domains.domain': 'www.' + cleanDomain },
+        { 'domains.domain': d }
+      ]
+    });
     
     // In development, if no user found with domain, try to find any user and add domain
     if (!user && process.env.NODE_ENV === 'development') {
       user = await User.findOne({});
       if (user) {
-        user.domains.push({ domain: d, verified: true });
+        user.domains.push({ domain: cleanDomain, verified: true });
         await user.save();
       }
     }
     
     if (!user) {
-      console.log('No user found for domain:', d);
+      console.log('No user found for domain:', d, 'cleaned:', cleanDomain);
       return;
     }
+    
+    console.log('Tracking pixel received for domain:', d, 'user:', user.email);
 
     const sessionId = sid || uuidv4();
     const visitorId = vid || uuidv4();
