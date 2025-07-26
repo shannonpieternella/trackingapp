@@ -6,6 +6,42 @@
   <title>User Journey - UTM Tracker</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
+    /* Domain filter */
+    .filter-section {
+      background: #f3f4f6;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .domain-filter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .domain-filter label {
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    .domain-filter select {
+      padding: 8px 12px;
+      border: 2px solid #d1d5db;
+      border-radius: 6px;
+      background: white;
+      font-size: 14px;
+      min-width: 200px;
+    }
+    
+    .filter-info {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
     .journey-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -198,6 +234,17 @@
 
   <!-- Main Content -->
   <div class="container mt-6">
+    <!-- Domain Filter -->
+    <div class="filter-section">
+      <div class="domain-filter">
+        <label for="domainSelect">Domain:</label>
+        <select id="domainSelect" onchange="handleDomainChange()">
+          <option value="">All Domains</option>
+        </select>
+      </div>
+      <div class="filter-info" id="filterInfo"></div>
+    </div>
+    
     <div class="journey-container">
       <div class="card mb-6">
         <div class="card-header">
@@ -253,7 +300,13 @@
     // Load all sessions
     async function loadJourneys() {
       try {
-        const data = await api.getSessions({ limit: 100 });
+        // Build query params
+        const params = { limit: 100 };
+        if (currentDomain) {
+          params.domain = currentDomain;
+        }
+        
+        const data = await api.getSessions(params);
         allSessions = data.sessions || [];
         
         // Calculate source summary
@@ -457,8 +510,61 @@
       });
     }
 
+    // Store current domain filter
+    let currentDomain = '';
+    
+    // Load user domains
+    async function loadDomains() {
+      try {
+        const response = await api.request('/api/domains');
+        const { domains } = response;
+        
+        const select = document.getElementById('domainSelect');
+        select.innerHTML = '<option value="">All Domains</option>';
+        
+        domains.forEach(domain => {
+          if (domain.verified) {
+            const option = document.createElement('option');
+            option.value = domain.domain;
+            option.textContent = domain.domain;
+            select.appendChild(option);
+          }
+        });
+        
+        // Restore previous selection if exists
+        const savedDomain = localStorage.getItem('selectedDomain');
+        if (savedDomain && domains.some(d => d.domain === savedDomain)) {
+          select.value = savedDomain;
+          currentDomain = savedDomain;
+        }
+        
+        updateFilterInfo();
+      } catch (error) {
+        console.error('Error loading domains:', error);
+      }
+    }
+    
+    // Handle domain filter change
+    function handleDomainChange() {
+      const select = document.getElementById('domainSelect');
+      currentDomain = select.value;
+      localStorage.setItem('selectedDomain', currentDomain);
+      updateFilterInfo();
+      loadJourneys();
+    }
+    
+    // Update filter info text
+    function updateFilterInfo() {
+      const info = document.getElementById('filterInfo');
+      if (currentDomain) {
+        info.textContent = `Showing journeys for: ${currentDomain}`;
+      } else {
+        info.textContent = 'Showing journeys for all your domains';
+      }
+    }
+    
     // Load data on page load
-    loadJourneys();
+    loadDomains().then(() => loadJourneys());
     
     // Refresh every 30 seconds
     setInterval(loadJourneys, 30000);

@@ -22,6 +22,42 @@
       gap: 30px;
     }
     
+    /* Domain filter */
+    .filter-section {
+      background: #f3f4f6;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .domain-filter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .domain-filter label {
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    .domain-filter select {
+      padding: 8px 12px;
+      border: 2px solid #d1d5db;
+      border-radius: 6px;
+      background: white;
+      font-size: 14px;
+      min-width: 200px;
+    }
+    
+    .filter-info {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
     /* Success message for tracking */
     .tracking-active {
       background: #d1fae5;
@@ -88,6 +124,17 @@
 
   <!-- Main Content -->
   <div class="container mt-6">
+    <!-- Domain Filter -->
+    <div class="filter-section">
+      <div class="domain-filter">
+        <label for="domainSelect">Domain:</label>
+        <select id="domainSelect" onchange="handleDomainChange()">
+          <option value="">All Domains</option>
+        </select>
+      </div>
+      <div class="filter-info" id="filterInfo"></div>
+    </div>
+
     <!-- Analytics Overview -->
     <div class="card mb-6">
       <div class="card-header">
@@ -186,7 +233,14 @@
     // Load dashboard data
     async function loadDashboard() {
       try {
-        const data = await api.getDashboard();
+        // Build query params
+        const params = new URLSearchParams();
+        if (currentDomain) {
+          params.append('domain', currentDomain);
+        }
+        
+        const url = `/api/analytics/dashboard${params.toString() ? '?' + params.toString() : ''}`;
+        const data = await api.request(url);
 
         // Update stats
         document.getElementById('totalSessions').textContent = data.totalSessions || 0;
@@ -249,8 +303,61 @@
       });
     }
 
+    // Store current domain filter
+    let currentDomain = '';
+    
+    // Load user domains
+    async function loadDomains() {
+      try {
+        const response = await api.request('/api/domains');
+        const { domains } = response;
+        
+        const select = document.getElementById('domainSelect');
+        select.innerHTML = '<option value="">All Domains</option>';
+        
+        domains.forEach(domain => {
+          if (domain.verified) {
+            const option = document.createElement('option');
+            option.value = domain.domain;
+            option.textContent = domain.domain;
+            select.appendChild(option);
+          }
+        });
+        
+        // Restore previous selection if exists
+        const savedDomain = localStorage.getItem('selectedDomain');
+        if (savedDomain && domains.some(d => d.domain === savedDomain)) {
+          select.value = savedDomain;
+          currentDomain = savedDomain;
+        }
+        
+        updateFilterInfo();
+      } catch (error) {
+        console.error('Error loading domains:', error);
+      }
+    }
+    
+    // Handle domain filter change
+    function handleDomainChange() {
+      const select = document.getElementById('domainSelect');
+      currentDomain = select.value;
+      localStorage.setItem('selectedDomain', currentDomain);
+      updateFilterInfo();
+      loadDashboard();
+    }
+    
+    // Update filter info text
+    function updateFilterInfo() {
+      const info = document.getElementById('filterInfo');
+      if (currentDomain) {
+        info.textContent = `Showing data for: ${currentDomain}`;
+      } else {
+        info.textContent = 'Showing data for all your domains';
+      }
+    }
+    
     // Load data on page load
-    loadDashboard();
+    loadDomains().then(() => loadDashboard());
     
     // Refresh every 30 seconds
     setInterval(loadDashboard, 30000);

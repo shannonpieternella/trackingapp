@@ -6,12 +6,14 @@ const { authMiddleware } = require('../middleware/auth');
 // Get conversion paths - which pages lead to conversions
 router.get('/conversion-paths', authMiddleware, async (req, res) => {
   try {
-    const { startDate, endDate, limit = 10 } = req.query;
+    const { domain, startDate, endDate, limit = 10 } = req.query;
     
     const query = {
       userId: req.user._id,
       conversions: { $exists: true, $ne: [] }
     };
+    
+    if (domain) query.domain = domain;
     
     if (startDate || endDate) {
       query.startTime = {};
@@ -89,9 +91,10 @@ router.get('/conversion-paths', authMiddleware, async (req, res) => {
 // Get user flow - how users navigate through the site
 router.get('/user-flow', authMiddleware, async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    const { domain, startDate, endDate } = req.query;
     
     const query = { userId: req.user._id };
+    if (domain) query.domain = domain;
     
     if (startDate || endDate) {
       query.startTime = {};

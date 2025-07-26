@@ -301,9 +301,10 @@ router.get('/realtime', authMiddleware, async (req, res) => {
 // Get dashboard data
 router.get('/dashboard', authMiddleware, async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    const { domain, startDate, endDate } = req.query;
     
     const query = { userId: req.user._id };
+    if (domain) query.domain = domain;
     
     // Date range filter
     if (startDate || endDate) {
