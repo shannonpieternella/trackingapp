@@ -8,7 +8,15 @@ const Session = require('../models/Session');
 // Get user's domains
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('domains');
+    const userId = req.userId || req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found in request' });
+    }
+    
+    const user = await User.findById(userId).select('domains');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
     res.json({ domains: user.domains || [] });
   } catch (error) {
     console.error('Error fetching domains:', error);
@@ -41,7 +49,8 @@ router.post('/add', authMiddleware, async (req, res) => {
     }
 
     // Get current user
-    const user = await User.findById(req.userId);
+    const userId = req.userId || req.user?._id;
+    const user = await User.findById(userId);
     
     // Check if user already has this domain
     const alreadyHas = user.domains.some(d => d.domain === cleanDomain);
@@ -78,8 +87,9 @@ router.post('/add', authMiddleware, async (req, res) => {
 router.post('/verify/:domain', authMiddleware, async (req, res) => {
   try {
     const { domain } = req.params;
+    const userId = req.userId || req.user?._id;
     
-    const user = await User.findById(req.userId);
+    const user = await User.findById(userId);
     const domainEntry = user.domains.find(d => d.domain === domain);
     
     if (!domainEntry) {
@@ -93,7 +103,7 @@ router.post('/verify/:domain', authMiddleware, async (req, res) => {
     // Check if tracking data has been received from this domain
     const session = await Session.findOne({ 
       domain: domain,
-      userId: req.userId 
+      userId: userId 
     });
 
     if (session) {
@@ -121,8 +131,9 @@ router.post('/verify/:domain', authMiddleware, async (req, res) => {
 router.delete('/:domain', authMiddleware, async (req, res) => {
   try {
     const { domain } = req.params;
+    const userId = req.userId || req.user?._id;
     
-    const user = await User.findById(req.userId);
+    const user = await User.findById(userId);
     user.domains = user.domains.filter(d => d.domain !== domain);
     await user.save();
 
@@ -136,7 +147,8 @@ router.delete('/:domain', authMiddleware, async (req, res) => {
 // Get domain stats
 router.get('/stats', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
+    const userId = req.userId || req.user?._id;
+    const user = await User.findById(userId);
     const domains = user.domains.map(d => d.domain);
     
     // Get session counts per domain
