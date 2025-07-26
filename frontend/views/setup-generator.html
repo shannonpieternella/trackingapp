@@ -256,54 +256,54 @@
         return;
       }
 
-      const trackingCode = `<!-- UTM Tracking Code -->
-<${'script'}>
-(function() {
-  // Configuration
-  var TRACKING_URL = '${TRACKING_URL}';
-  var DOMAIN = '${domain}';
-  
-  // Generate unique visitor ID (persists across sessions)
-  var visitorId = localStorage.getItem('utm_visitor_id');
-  if (!visitorId) {
-    visitorId = 'v-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('utm_visitor_id', visitorId);
-  }
-  
-  // Generate session ID (new for each browser session)
-  var sessionId = sessionStorage.getItem('utm_session_id');
-  if (!sessionId) {
-    sessionId = 's-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    sessionStorage.setItem('utm_session_id', sessionId);
-  }
-  
-  // Get UTM parameters from URL
-  var urlParams = new URLSearchParams(window.location.search);
-  var utmSource = urlParams.get('utm_source') || localStorage.getItem('utm_source') || 'direct';
-  var utmMedium = urlParams.get('utm_medium') || localStorage.getItem('utm_medium') || 'none';
-  var utmCampaign = urlParams.get('utm_campaign') || localStorage.getItem('utm_campaign') || '';
-  
-  // Store UTM params for the session
-  if (urlParams.get('utm_source')) {
-    localStorage.setItem('utm_source', utmSource);
-    localStorage.setItem('utm_medium', utmMedium);
-    localStorage.setItem('utm_campaign', utmCampaign);
-  }
-  
-  // Send tracking pixel
-  var img = new Image(1, 1);
-  img.src = TRACKING_URL + '/t.gif?' + 
-    'sid=' + encodeURIComponent(sessionId) +
-    '&vid=' + encodeURIComponent(visitorId) +
-    '&d=' + encodeURIComponent(DOMAIN) +
-    '&p=' + encodeURIComponent(window.location.pathname) +
-    '&t=' + encodeURIComponent(document.title) +
-    '&r=' + encodeURIComponent(document.referrer) +
-    '&utm_source=' + encodeURIComponent(utmSource) +
-    '&utm_medium=' + encodeURIComponent(utmMedium) +
-    '&utm_campaign=' + encodeURIComponent(utmCampaign);
-})();
-</${'script'}>`;
+      const trackingCode = '<!-- UTM Tracking Code -->\n' +
+'<scr' + 'ipt>\n' +
+'(function() {\n' +
+'  // Configuration\n' +
+'  var TRACKING_URL = \'' + TRACKING_URL + '\';\n' +
+'  var DOMAIN = \'' + domain + '\';\n' +
+'  \n' +
+'  // Generate unique visitor ID (persists across sessions)\n' +
+'  var visitorId = localStorage.getItem(\'utm_visitor_id\');\n' +
+'  if (!visitorId) {\n' +
+'    visitorId = \'v-\' + Date.now() + \'-\' + Math.random().toString(36).substr(2, 9);\n' +
+'    localStorage.setItem(\'utm_visitor_id\', visitorId);\n' +
+'  }\n' +
+'  \n' +
+'  // Generate session ID (new for each browser session)\n' +
+'  var sessionId = sessionStorage.getItem(\'utm_session_id\');\n' +
+'  if (!sessionId) {\n' +
+'    sessionId = \'s-\' + Date.now() + \'-\' + Math.random().toString(36).substr(2, 9);\n' +
+'    sessionStorage.setItem(\'utm_session_id\', sessionId);\n' +
+'  }\n' +
+'  \n' +
+'  // Get UTM parameters from URL\n' +
+'  var urlParams = new URLSearchParams(window.location.search);\n' +
+'  var utmSource = urlParams.get(\'utm_source\') || localStorage.getItem(\'utm_source\') || \'direct\';\n' +
+'  var utmMedium = urlParams.get(\'utm_medium\') || localStorage.getItem(\'utm_medium\') || \'none\';\n' +
+'  var utmCampaign = urlParams.get(\'utm_campaign\') || localStorage.getItem(\'utm_campaign\') || \'\';\n' +
+'  \n' +
+'  // Store UTM params for the session\n' +
+'  if (urlParams.get(\'utm_source\')) {\n' +
+'    localStorage.setItem(\'utm_source\', utmSource);\n' +
+'    localStorage.setItem(\'utm_medium\', utmMedium);\n' +
+'    localStorage.setItem(\'utm_campaign\', utmCampaign);\n' +
+'  }\n' +
+'  \n' +
+'  // Send tracking pixel\n' +
+'  var img = new Image(1, 1);\n' +
+'  img.src = TRACKING_URL + \'/t.gif?\' + \n' +
+'    \'sid=\' + encodeURIComponent(sessionId) +\n' +
+'    \'&vid=\' + encodeURIComponent(visitorId) +\n' +
+'    \'&d=\' + encodeURIComponent(DOMAIN) +\n' +
+'    \'&p=\' + encodeURIComponent(window.location.pathname) +\n' +
+'    \'&t=\' + encodeURIComponent(document.title) +\n' +
+'    \'&r=\' + encodeURIComponent(document.referrer) +\n' +
+'    \'&utm_source=\' + encodeURIComponent(utmSource) +\n' +
+'    \'&utm_medium=\' + encodeURIComponent(utmMedium) +\n' +
+'    \'&utm_campaign=\' + encodeURIComponent(utmCampaign);\n' +
+'})();\n' +
+'</scr' + 'ipt>';
 
       // Display the code
       document.getElementById('trackingCode').textContent = trackingCode;
