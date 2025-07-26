@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Link Builder - UTM Tracker</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .builder-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 10px 15px;
+      font-size: 16px;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    
+    .help-text {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+    
+    .required {
+      color: #ef4444;
+    }
+    
+    .utm-preview {
+      background: #f3f4f6;
+      padding: 20px;
+      border-radius: 8px;
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 14px;
+      margin: 20px 0;
+      border: 2px solid #e5e7eb;
+    }
+    
+    .btn-build {
+      background: #3b82f6;
+      color: white;
+      padding: 12px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+    }
+    
+    .btn-build:hover {
+      background: #2563eb;
+    }
+    
+    .output-section {
+      display: none;
+      margin-top: 40px;
+    }
+    
+    .copy-button {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 10px;
+    }
+    
+    .copy-button:hover {
+      background: #059669;
+    }
+    
+    .copy-button.copied {
+      background: #6b7280;
+    }
+    
+    .utm-examples {
+      background: #eff6ff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 30px;
+      border: 1px solid #bfdbfe;
+    }
+    
+    .utm-examples h4 {
+      color: #1e40af;
+      margin-bottom: 15px;
+    }
+    
+    .example {
+      margin-bottom: 10px;
+      color: #3730a3;
+    }
+    
+    .result-url {
+      background: #1f2937;
+      color: #10b981;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      word-break: break-all;
+      margin: 10px 0;
+    }
+    
+    .qr-code {
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .saved-links {
+      margin-top: 40px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    
+    .saved-link-item {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .saved-link-info {
+      flex: 1;
+    }
+    
+    .saved-link-name {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 5px;
+    }
+    
+    .saved-link-url {
+      font-size: 14px;
+      color: #6b7280;
+      word-break: break-all;
+    }
+    
+    .saved-link-actions {
+      display: flex;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/dashboard" class="logo">UTM Tracker</a>
+        
+        <ul class="nav-links">
+          <li><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/journey">User Journey</a></li>
+          <li><a href="/utm-builder" class="active">UTM Builder</a></li>
+          <li><a href="/setup-generator">Get Tracking Code</a></li>
+        </ul>
+
+        <div class="user-menu">
+          <span id="userName" class="text-secondary"></span>
+          <button class="btn btn-outline btn-sm" onclick="api.logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container mt-6">
+    <div class="builder-container">
+      <div class="card">
+        <div class="card-header">
+          <h1 class="card-title">UTM Link Builder</h1>
+          <p class="text-secondary">Create trackable campaign URLs with UTM parameters</p>
+        </div>
+
+        <form id="utmForm">
+          <div class="form-group">
+            <label>Website URL <span class="required">*</span></label>
+            <input type="url" id="url" placeholder="https://example.com/page" required>
+            <div class="help-text">The full website URL (including https://)</div>
+          </div>
+
+          <div class="form-group">
+            <label>Campaign Source <span class="required">*</span></label>
+            <input type="text" id="utm_source" placeholder="google, facebook, newsletter" required>
+            <div class="help-text">Identify the advertiser, site, or publication</div>
+          </div>
+
+          <div class="form-group">
+            <label>Campaign Medium <span class="required">*</span></label>
+            <input type="text" id="utm_medium" placeholder="cpc, email, social, banner" required>
+            <div class="help-text">The advertising or marketing medium</div>
+          </div>
+
+          <div class="form-group">
+            <label>Campaign Name <span class="required">*</span></label>
+            <input type="text" id="utm_campaign" placeholder="summer_sale, launch_2024" required>
+            <div class="help-text">Product, promo code, or slogan</div>
+          </div>
+
+          <div class="form-group">
+            <label>Campaign Term (optional)</label>
+            <input type="text" id="utm_term" placeholder="running+shoes">
+            <div class="help-text">Paid search keywords</div>
+          </div>
+
+          <div class="form-group">
+            <label>Campaign Content (optional)</label>
+            <input type="text" id="utm_content" placeholder="logolink, textlink">
+            <div class="help-text">Differentiate ads or links that point to the same URL</div>
+          </div>
+
+          <div class="form-group">
+            <label>Link Name (optional)</label>
+            <input type="text" id="link_name" placeholder="Summer Sale Facebook Ad">
+            <div class="help-text">Save this link with a memorable name</div>
+          </div>
+
+          <div class="utm-preview" id="preview">
+            Your UTM link will appear here...
+          </div>
+
+          <button type="submit" class="btn-build">Build UTM Link</button>
+        </form>
+
+        <div id="outputSection" class="output-section">
+          <h3>Your UTM Link is Ready!</h3>
+          <div class="result-url" id="resultUrl"></div>
+          <button class="copy-button" onclick="copyUrl()">Copy URL</button>
+          
+          <div class="qr-code" id="qrCode">
+            <!-- QR code will be generated here -->
+          </div>
+
+          <div class="card mt-4">
+            <div class="card-header">
+              <h4>How to use this link:</h4>
+            </div>
+            <ol style="line-height: 1.8;">
+              <li>Copy the generated URL</li>
+              <li>Use it in your marketing campaigns</li>
+              <li>Track performance in the <a href="/dashboard">Dashboard</a></li>
+              <li>View user journeys in <a href="/journey">User Journey</a></li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="utm-examples">
+          <h4>Common UTM Examples:</h4>
+          <div class="example"><strong>Google Ads:</strong> source=google, medium=cpc, campaign=brand_2024</div>
+          <div class="example"><strong>Facebook:</strong> source=facebook, medium=social, campaign=summer_sale</div>
+          <div class="example"><strong>Email Newsletter:</strong> source=mailchimp, medium=email, campaign=july_newsletter</div>
+          <div class="example"><strong>Instagram:</strong> source=instagram, medium=social, campaign=product_launch</div>
+        </div>
+      </div>
+
+      <div class="saved-links" id="savedLinks" style="display: none;">
+        <h3>Your Saved Links</h3>
+        <div id="savedLinksList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script>
+    // Check authentication
+    if (!localStorage.getItem('utm_token')) {
+      window.location.href = '/';
+    }
+
+    // Set user name
+    const user = JSON.parse(localStorage.getItem('utm_user') || '{}');
+    document.getElementById('userName').textContent = user.name || user.email || '';
+
+    // Form elements
+    const form = document.getElementById('utmForm');
+    const urlInput = document.getElementById('url');
+    const sourceInput = document.getElementById('utm_source');
+    const mediumInput = document.getElementById('utm_medium');
+    const campaignInput = document.getElementById('utm_campaign');
+    const termInput = document.getElementById('utm_term');
+    const contentInput = document.getElementById('utm_content');
+    const nameInput = document.getElementById('link_name');
+    const preview = document.getElementById('preview');
+
+    // Update preview as user types
+    function updatePreview() {
+      const url = urlInput.value.trim();
+      const source = sourceInput.value.trim();
+      const medium = mediumInput.value.trim();
+      const campaign = campaignInput.value.trim();
+      const term = termInput.value.trim();
+      const content = contentInput.value.trim();
+
+      if (url && source && medium && campaign) {
+        const finalUrl = buildUrl(url, source, medium, campaign, term, content);
+        preview.textContent = finalUrl;
+        preview.style.color = '#059669';
+      } else {
+        preview.textContent = 'Fill in required fields to see preview...';
+        preview.style.color = '#6b7280';
+      }
+    }
+
+    // Build URL with UTM parameters
+    function buildUrl(url, source, medium, campaign, term, content) {
+      const urlObj = new URL(url);
+      urlObj.searchParams.set('utm_source', source);
+      urlObj.searchParams.set('utm_medium', medium);
+      urlObj.searchParams.set('utm_campaign', campaign);
+      
+      if (term) urlObj.searchParams.set('utm_term', term);
+      if (content) urlObj.searchParams.set('utm_content', content);
+      
+      return urlObj.toString();
+    }
+
+    // Add event listeners for live preview
+    [urlInput, sourceInput, mediumInput, campaignInput, termInput, contentInput].forEach(input => {
+      input.addEventListener('input', updatePreview);
+    });
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const url = urlInput.value.trim();
+      const source = sourceInput.value.trim();
+      const medium = mediumInput.value.trim();
+      const campaign = campaignInput.value.trim();
+      const term = termInput.value.trim();
+      const content = contentInput.value.trim();
+      const name = nameInput.value.trim();
+
+      const finalUrl = buildUrl(url, source, medium, campaign, term, content);
+
+      // Show result
+      document.getElementById('resultUrl').textContent = finalUrl;
+      document.getElementById('outputSection').style.display = 'block';
+      document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+
+      // Generate QR code
+      generateQRCode(finalUrl);
+
+      // Save link if name provided
+      if (name) {
+        saveLink(name, finalUrl, { source, medium, campaign, term, content });
+      }
+    });
+
+    // Copy URL to clipboard
+    function copyUrl() {
+      const url = document.getElementById('resultUrl').textContent;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Generate QR code
+    function generateQRCode(url) {
+      const qrContainer = document.getElementById('qrCode');
+      qrContainer.innerHTML = `
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}" 
+             alt="QR Code" 
+             style="border: 2px solid #e5e7eb; border-radius: 8px;">
+        <p class="help-text mt-2">Scan this QR code to test your link on mobile</p>
+      `;
+    }
+
+    // Save link to localStorage
+    function saveLink(name, url, params) {
+      const savedLinks = JSON.parse(localStorage.getItem('utm_saved_links') || '[]');
+      savedLinks.unshift({
+        id: Date.now(),
+        name,
+        url,
+        params,
+        created: new Date().toISOString()
+      });
+      
+      // Keep only last 20 links
+      if (savedLinks.length > 20) {
+        savedLinks.pop();
+      }
+      
+      localStorage.setItem('utm_saved_links', JSON.stringify(savedLinks));
+      displaySavedLinks();
+    }
+
+    // Display saved links
+    function displaySavedLinks() {
+      const savedLinks = JSON.parse(localStorage.getItem('utm_saved_links') || '[]');
+      
+      if (savedLinks.length === 0) {
+        document.getElementById('savedLinks').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('savedLinks').style.display = 'block';
+      const listContainer = document.getElementById('savedLinksList');
+      
+      listContainer.innerHTML = savedLinks.map(link => `
+        <div class="saved-link-item">
+          <div class="saved-link-info">
+            <div class="saved-link-name">${link.name}</div>
+            <div class="saved-link-url">${link.url}</div>
+          </div>
+          <div class="saved-link-actions">
+            <button class="copy-button" onclick="copySavedLink('${link.url}')">Copy</button>
+            <button class="btn btn-outline btn-sm" onclick="deleteSavedLink(${link.id})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Copy saved link
+    window.copySavedLink = function(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    };
+
+    // Delete saved link
+    window.deleteSavedLink = function(id) {
+      const savedLinks = JSON.parse(localStorage.getItem('utm_saved_links') || '[]');
+      const filtered = savedLinks.filter(link => link.id !== id);
+      localStorage.setItem('utm_saved_links', JSON.stringify(filtered));
+      displaySavedLinks();
+    };
+
+    // Load saved links on page load
+    displaySavedLinks();
+  </script>
+</body>
+</html>

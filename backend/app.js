@@ -86,8 +86,9 @@ app.get('/setup-generator', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/views/setup-generator.html'));
 });
 
-// Redirects for old routes
-app.get('/utm-builder', (req, res) => res.redirect('/setup-generator'));
+app.get('/utm-builder', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/views/utm-builder.html'));
+});
 app.get('/campaigns', (req, res) => res.redirect('/dashboard'));
 app.get('/events', (req, res) => res.redirect('/dashboard'));
 app.get('/tracking-setup', (req, res) => res.redirect('/setup-generator'));
