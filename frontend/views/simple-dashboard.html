@@ -239,7 +239,7 @@
           params.append('domain', currentDomain);
         }
         
-        const url = `/api/analytics/dashboard${params.toString() ? '?' + params.toString() : ''}`;
+        const url = `/analytics/dashboard${params.toString() ? '?' + params.toString() : ''}`;
         const data = await api.request(url);
 
         // Update stats
