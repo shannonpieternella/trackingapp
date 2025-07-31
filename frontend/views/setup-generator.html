@@ -202,6 +202,15 @@
           </div>
 
           <h3>Step 2: Add to your website</h3>
+          <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 6px; margin: 15px 0;">
+            <strong>⚠️ BELANGRIJK:</strong> Plaats deze code op <strong>ELKE PAGINA</strong> van je website!
+            <ul style="margin: 10px 0 0 20px; line-height: 1.6;">
+              <li>Niet alleen op de homepage</li>
+              <li>Ook op product pagina's, contact, checkout, etc.</li>
+              <li>De cookie zorgt ervoor dat we weten waar bezoekers vandaan komen</li>
+              <li>Elke pagina wordt automatisch getracked met de originele UTM source</li>
+            </ul>
+          </div>
           <p>Paste the code in the <code>&lt;head&gt;</code> section of every page you want to track.</p>
 
           <h3>Step 3: Test your tracking</h3>
@@ -215,13 +224,24 @@
               <h4>What gets tracked?</h4>
             </div>
             <ul style="line-height: 1.8; color: #4b5563;">
-              <li>✓ Unique visitors (each person gets a unique ID)</li>
-              <li>✓ Sessions (new session for each visit)</li>
-              <li>✓ UTM parameters (source, medium, campaign)</li>
-              <li>✓ Page views and navigation paths</li>
-              <li>✓ Time spent on site</li>
-              <li>✓ Entry and exit pages</li>
+              <li>✓ Unique visitors (365 dagen cookie)</li>
+              <li>✓ Sessions (24 uur cookie per sessie)</li>
+              <li>✓ UTM parameters worden opgeslagen in cookies</li>
+              <li>✓ ELKE pagina wordt getracked met originele UTM source</li>
+              <li>✓ Complete user journey van landing tot exit</li>
+              <li>✓ Entry and exit pages per traffic source</li>
             </ul>
+            
+            <div style="background: #e0e7ff; border: 1px solid #6366f1; padding: 12px; border-radius: 6px; margin-top: 15px;">
+              <strong>Hoe het werkt:</strong>
+              <ol style="margin: 8px 0 0 20px; line-height: 1.6;">
+                <li>Bezoeker komt binnen via bijv: yoursite.com/?utm_source=tiktok</li>
+                <li>UTM source wordt opgeslagen in een cookie (24 uur geldig)</li>
+                <li>Bezoeker navigeert naar /products, /about, /contact</li>
+                <li>Elke pagina wordt getracked als "TikTok traffic"</li>
+                <li>Je ziet exact welke pagina's TikTok bezoekers bekijken</li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>
@@ -338,7 +358,7 @@
 '    \'sid=\' + encodeURIComponent(sessionId) +\n' +
 '    \'&vid=\' + encodeURIComponent(visitorId) +\n' +
 '    \'&d=\' + encodeURIComponent(DOMAIN) +\n' +
-'    \'&p=\' + encodeURIComponent(window.location.href) +\n' +
+'    \'&p=\' + encodeURIComponent(window.location.pathname + window.location.search) +\n' +
 '    \'&t=\' + encodeURIComponent(document.title) +\n' +
 '    \'&r=\' + encodeURIComponent(document.referrer) +\n' +
 '    \'&utm_source=\' + encodeURIComponent(utmSource) +\n' +
@@ -347,6 +367,16 @@
 '    \'&utm_content=\' + encodeURIComponent(utmContent) +\n' +
 '    \'&utm_term=\' + encodeURIComponent(utmTerm) +\n' +
 '    \'&ts=\' + Date.now();\n' +
+'  \n' +
+'  // Debug info (verwijder in productie)\n' +
+'  if (window.location.hostname === \'localhost\' || window.location.hostname === \'127.0.0.1\') {\n' +
+'    console.log(\'UTM Tracker: Pagina getracked\', {\n' +
+'      page: window.location.pathname,\n' +
+'      source: utmSource,\n' +
+'      campaign: utmCampaign,\n' +
+'      sessionId: sessionId.substring(0, 8) + \'...\'\n' +
+'    });\n' +
+'  }\n' +
 '})();\n' +
 '</scr' + 'ipt>';
 

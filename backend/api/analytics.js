@@ -407,14 +407,23 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
 // Get sessions list
 router.get('/sessions', authMiddleware, async (req, res) => {
   try {
-    const { limit = 100, startDate, endDate } = req.query;
+    const { limit = 100, startDate, endDate, domain } = req.query;
     
     const query = { userId: req.user._id };
+    if (domain) query.domain = domain;
     
     if (startDate || endDate) {
       query.startTime = {};
-      if (startDate) query.startTime.$gte = new Date(startDate);
-      if (endDate) query.startTime.$lte = new Date(endDate);
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        query.startTime.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        query.startTime.$lte = end;
+      }
     }
 
     const sessions = await Session.find(query)
