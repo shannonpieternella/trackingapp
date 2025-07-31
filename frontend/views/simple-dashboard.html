@@ -6,6 +6,8 @@
   <title>Dashboard - FlowTrack AI</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/contrast-fixes.css">
+  <link rel="stylesheet" href="/css/responsive-stats.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='50%' x='50%' text-anchor='middle' font-size='80'>🚀</text></svg">
   <style>
     /* Fix for stretching issue */
@@ -187,22 +189,84 @@
       </div>
 
       <!-- Stats Grid -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total Sessions</div>
-          <div class="stat-value" id="totalSessions">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Unique Visitors</div>
-          <div class="stat-value" id="uniqueVisitors">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Page Views</div>
-          <div class="stat-value" id="pageViews">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Avg. Session Duration</div>
-          <div class="stat-value" id="avgDuration">0s</div>
+      <div class="dashboard-stats">
+        <div class="stats-grid">
+          <div class="stat-card" data-animate>
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Total Sessions</div>
+              <div class="stat-value" id="totalSessions">0</div>
+              <div class="stat-change positive">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                </svg>
+                <span>+12.5%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card" data-animate>
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Unique Visitors</div>
+              <div class="stat-value" id="uniqueVisitors">0</div>
+              <div class="stat-change positive">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                </svg>
+                <span>+8.3%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card" data-animate>
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Page Views</div>
+              <div class="stat-value" id="pageViews">0</div>
+              <div class="stat-change negative">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                </svg>
+                <span>-2.1%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card" data-animate>
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Avg. Duration</div>
+              <div class="stat-value" id="avgDuration">0s</div>
+              <div class="stat-change">
+                <span style="color: var(--text-muted)">No change</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

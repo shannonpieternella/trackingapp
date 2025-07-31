@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/dashboard.css">
   <link rel="stylesheet" href="/css/contrast-fixes.css">
+  <link rel="stylesheet" href="/css/responsive-stats.css">
   <style>
     .domains-container {
       max-width: 1000px;
@@ -105,28 +106,49 @@
     
     .domain-stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
+      grid-template-columns: 1fr;
+      gap: 12px;
       margin: 20px 0;
     }
     
-    .stat-box {
-      background: #f9fafb;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
+    @media (min-width: 640px) {
+      .domain-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
     }
     
-    .stat-value {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1f2937;
-    }
-    
-    .stat-label {
-      font-size: 14px;
-      color: #6b7280;
-      margin-top: 5px;
+    /* Mobile-first responsive adjustments */
+    @media (max-width: 639px) {
+      .domains-container {
+        padding: 0 16px;
+      }
+      
+      .add-domain-form {
+        padding: 20px;
+      }
+      
+      .domain-input-group {
+        flex-direction: column;
+      }
+      
+      .domain-card {
+        padding: 16px;
+      }
+      
+      .domain-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .verification-instructions ol {
+        padding-left: 20px;
+      }
+      
+      .domain-actions {
+        flex-wrap: wrap;
+      }
     }
     
     .domain-actions {
@@ -338,13 +360,30 @@
             
             ${isVerified ? `
               <div class="domain-stats">
-                <div class="stat-box">
-                  <div class="stat-value">${stats.totalSessions}</div>
-                  <div class="stat-label">Total Sessions</div>
+                <div class="stat-card" data-animate>
+                  <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                    </svg>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-label">Total Sessions</div>
+                    <div class="stat-value">${stats.totalSessions}</div>
+                  </div>
                 </div>
-                <div class="stat-box">
-                  <div class="stat-value">${stats.uniqueVisitors}</div>
-                  <div class="stat-label">Unique Visitors</div>
+                <div class="stat-card" data-animate>
+                  <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-label">Unique Visitors</div>
+                    <div class="stat-value">${stats.uniqueVisitors}</div>
+                  </div>
                 </div>
               </div>
             ` : `

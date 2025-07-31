@@ -7,10 +7,68 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/dashboard.css">
   <link rel="stylesheet" href="/css/contrast-fixes.css">
+  <link rel="stylesheet" href="/css/responsive-stats.css">
   <style>
     .generator-container {
       max-width: 800px;
       margin: 0 auto;
+    }
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 639px) {
+      .generator-container {
+        padding: 0 16px;
+      }
+      
+      .card {
+        margin: 0 -16px;
+      }
+      
+      .card-header {
+        padding: 20px;
+      }
+      
+      .input-section {
+        padding: 20px;
+      }
+      
+      .domain-input {
+        flex-direction: column;
+      }
+      
+      .domain-input input {
+        font-size: 16px;
+      }
+      
+      .btn-generate {
+        width: 100%;
+      }
+      
+      .code-block {
+        font-size: 12px;
+        padding: 16px;
+      }
+      
+      .copy-btn {
+        top: 8px;
+        right: 8px;
+        padding: 4px 10px;
+        font-size: 11px;
+      }
+      
+      .test-urls {
+        padding: 16px;
+      }
+      
+      .url-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+      }
+      
+      .url-label {
+        min-width: auto;
+      }
     }
     
     .input-section {
