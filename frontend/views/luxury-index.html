@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackFlow - Premium Analytics Platform</title>
+  <link rel="stylesheet" href="/css/luxury-style.css">
+  <script src="/js/luxury-animations.js" defer></script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='50%' x='50%' text-anchor='middle' font-size='80'>📊</text></svg>">
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h1 class="logo">TrackFlow</h1>
+          <p class="tagline">Premium Analytics & Attribution Intelligence</p>
+        </div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" id="email" class="form-input" required placeholder="hello@company.com" autocomplete="email">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" id="password" class="form-input" required placeholder="Enter your password" autocomplete="current-password">
+          </div>
+
+          <div class="alert alert-error hidden" id="errorAlert"></div>
+
+          <button type="submit" class="btn btn-primary btn-full">
+            <span id="btnText">Sign In</span>
+            <span class="spinner hidden" id="btnSpinner"></span>
+          </button>
+
+          <div class="divider">
+            <span class="divider-text">or</span>
+          </div>
+
+          <div class="text-center">
+            <a href="#" id="showRegister" class="auth-link">
+              Create an account
+            </a>
+          </div>
+        </form>
+
+        <form id="registerForm" class="hidden">
+          <div class="form-group">
+            <label class="form-label" for="regName">Full Name</label>
+            <input type="text" id="regName" class="form-input" required placeholder="John Smith" autocomplete="name">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regEmail">Email Address</label>
+            <input type="email" id="regEmail" class="form-input" required placeholder="hello@company.com" autocomplete="email">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPassword">Password</label>
+            <input type="password" id="regPassword" class="form-input" required placeholder="Create a strong password" autocomplete="new-password">
+            <p class="form-hint">Minimum 6 characters with numbers and letters</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regOrganization">Organization</label>
+            <input type="text" id="regOrganization" class="form-input" placeholder="Your Company (Optional)" autocomplete="organization">
+          </div>
+
+          <div class="alert alert-error hidden" id="regErrorAlert"></div>
+
+          <button type="submit" class="btn btn-primary btn-full">
+            <span id="regBtnText">Create Account</span>
+            <span class="spinner hidden" id="regBtnSpinner"></span>
+          </button>
+
+          <div class="divider">
+            <span class="divider-text">or</span>
+          </div>
+
+          <div class="text-center">
+            <a href="#" id="showLogin" class="auth-link">
+              Sign in to existing account
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const showRegisterBtn = document.getElementById('showRegister');
+    const showLoginBtn = document.getElementById('showLogin');
+
+    function switchForms(showLogin) {
+      if (showLogin) {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+      } else {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+      }
+    }
+
+    showRegisterBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchForms(false);
+    });
+
+    showLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchForms(true);
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorAlert = document.getElementById('errorAlert');
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+      
+      btnText.classList.add('hidden');
+      btnSpinner.classList.remove('hidden');
+      errorAlert.classList.add('hidden');
+      
+      try {
+        await api.login(email, password);
+        window.location.href = '/luxury-dashboard';
+      } catch (error) {
+        errorAlert.textContent = error.message || 'Authentication failed. Please try again.';
+        errorAlert.classList.remove('hidden');
+      } finally {
+        btnText.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    });
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      const organization = document.getElementById('regOrganization').value;
+      const errorAlert = document.getElementById('regErrorAlert');
+      const btnText = document.getElementById('regBtnText');
+      const btnSpinner = document.getElementById('regBtnSpinner');
+      
+      if (password.length < 6) {
+        errorAlert.textContent = 'Password must be at least 6 characters long';
+        errorAlert.classList.remove('hidden');
+        return;
+      }
+      
+      btnText.classList.add('hidden');
+      btnSpinner.classList.remove('hidden');
+      errorAlert.classList.add('hidden');
+      
+      try {
+        await api.register({ name, email, password, organization });
+        window.location.href = '/luxury-dashboard';
+      } catch (error) {
+        errorAlert.textContent = error.message || 'Registration failed. Please try again.';
+        errorAlert.classList.remove('hidden');
+      } finally {
+        btnText.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    });
+
+    if (localStorage.getItem('utm_token')) {
+      window.location.href = '/luxury-dashboard';
+    }
+  </script>
+</body>
+</html>

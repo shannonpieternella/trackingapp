@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - TrackFlow</title>
+  <link rel="stylesheet" href="/css/luxury-style.css">
+  <script src="/js/luxury-animations.js" defer></script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='50%' x='50%' text-anchor='middle' font-size='80'>📊</text></svg>">
+</head>
+<body>
+  <div class="page-wrapper">
+    <nav class="dashboard-nav">
+      <div class="container">
+        <div class="nav-content">
+          <div class="nav-brand">
+            <a href="/luxury-dashboard" class="nav-logo">TrackFlow</a>
+            <button class="nav-menu" id="mobileMenuToggle">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          
+          <ul class="nav-links">
+            <li><a href="/luxury-dashboard" class="nav-link active">Overview</a></li>
+            <li><a href="/luxury-campaigns" class="nav-link">Campaigns</a></li>
+            <li><a href="/luxury-analytics" class="nav-link">Analytics</a></li>
+            <li><a href="/luxury-journey" class="nav-link">Journey</a></li>
+            <li><a href="/luxury-domains" class="nav-link">Domains</a></li>
+          </ul>
+          
+          <div class="nav-actions">
+            <button class="btn btn-primary" onclick="window.location.href='/luxury-utm-builder'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Create Campaign
+            </button>
+            <div class="user-avatar" id="userAvatar">JS</div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="mobile-nav" id="mobileNav">
+      <button class="mobile-nav-close" id="mobileNavClose">&times;</button>
+      <ul class="mobile-nav-links">
+        <li><a href="/luxury-dashboard" class="mobile-nav-link">Overview</a></li>
+        <li><a href="/luxury-campaigns" class="mobile-nav-link">Campaigns</a></li>
+        <li><a href="/luxury-analytics" class="mobile-nav-link">Analytics</a></li>
+        <li><a href="/luxury-journey" class="mobile-nav-link">Journey</a></li>
+        <li><a href="/luxury-domains" class="mobile-nav-link">Domains</a></li>
+      </ul>
+    </div>
+
+    <main class="dashboard-content">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📈</div>
+            <div class="stat-label">Total Visits</div>
+            <div class="stat-value" id="totalVisits">0</div>
+            <div class="stat-change positive">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+              <span>+12.5% from last week</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-label">Conversion Rate</div>
+            <div class="stat-value" id="conversionRate">0%</div>
+            <div class="stat-change positive">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+              <span>+3.2% from last week</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-label">Active Campaigns</div>
+            <div class="stat-value" id="activeCampaigns">0</div>
+            <div class="stat-change">
+              <span>2 pending review</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">💎</div>
+            <div class="stat-label">Avg. Session Duration</div>
+            <div class="stat-value" id="avgDuration">0s</div>
+            <div class="stat-change negative">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                <polyline points="17 18 23 18 23 12"></polyline>
+              </svg>
+              <span>-5.1% from last week</span>
+            </div>
+          </div>
+        </div>
+
+        <section>
+          <div class="section-header">
+            <h2 class="section-title">Recent Campaigns</h2>
+            <button class="btn btn-primary" onclick="window.location.href='/luxury-campaigns'">
+              View All
+            </button>
+          </div>
+
+          <div class="data-card">
+            <div class="data-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Campaign Name</th>
+                    <th>Source</th>
+                    <th>Medium</th>
+                    <th>Visits</th>
+                    <th>Conversions</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="campaignsTable">
+                  <tr>
+                    <td colspan="6">
+                      <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <h3 class="empty-state-title">No campaigns yet</h3>
+                        <p class="empty-state-text">Create your first campaign to start tracking performance</p>
+                        <button class="btn btn-primary" onclick="window.location.href='/luxury-utm-builder'">
+                          Create Campaign
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section style="margin-top: 48px;">
+          <div class="section-header">
+            <h2 class="section-title">Top Traffic Sources</h2>
+            <button class="btn btn-primary" onclick="window.location.href='/luxury-analytics'">
+              View Analytics
+            </button>
+          </div>
+
+          <div class="data-card">
+            <div class="data-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th>Sessions</th>
+                    <th>Users</th>
+                    <th>Bounce Rate</th>
+                    <th>Avg. Duration</th>
+                  </tr>
+                </thead>
+                <tbody id="sourcesTable">
+                  <tr>
+                    <td colspan="5">
+                      <div class="empty-state">
+                        <div class="empty-state-icon">🌐</div>
+                        <h3 class="empty-state-title">No traffic data yet</h3>
+                        <p class="empty-state-text">Start tracking to see your top traffic sources</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    // Mobile menu
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileNav = document.getElementById('mobileNav');
+    const mobileNavClose = document.getElementById('mobileNavClose');
+
+    mobileMenuToggle.addEventListener('click', () => {
+      mobileNav.classList.add('active');
+    });
+
+    mobileNavClose.addEventListener('click', () => {
+      mobileNav.classList.remove('active');
+    });
+
+    // Check auth
+    if (!localStorage.getItem('utm_token')) {
+      window.location.href = '/luxury-index';
+    }
+
+    // Load user data
+    async function loadUserData() {
+      try {
+        const userData = JSON.parse(localStorage.getItem('utm_user') || '{}');
+        const initials = userData.name ? userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+        document.getElementById('userAvatar').textContent = initials;
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    }
+
+    // Load dashboard data
+    async function loadDashboardData() {
+      try {
+        // Load stats
+        const stats = await api.getAnalytics({ period: '7d' });
+        document.getElementById('totalVisits').textContent = stats.totalVisits?.toLocaleString() || '0';
+        document.getElementById('conversionRate').textContent = (stats.conversionRate || 0).toFixed(1) + '%';
+        document.getElementById('avgDuration').textContent = formatDuration(stats.avgDuration || 0);
+
+        // Load campaigns
+        const campaigns = await api.getCampaigns({ limit: 5 });
+        document.getElementById('activeCampaigns').textContent = campaigns.filter(c => c.status === 'active').length;
+        
+        if (campaigns.length > 0) {
+          const campaignsHtml = campaigns.map(campaign => `
+            <tr>
+              <td>${campaign.name}</td>
+              <td>${campaign.source}</td>
+              <td>${campaign.medium}</td>
+              <td>${campaign.visits?.toLocaleString() || '0'}</td>
+              <td>${campaign.conversions?.toLocaleString() || '0'}</td>
+              <td><span class="badge badge-${campaign.status === 'active' ? 'active' : 'pending'}">${campaign.status}</span></td>
+            </tr>
+          `).join('');
+          document.getElementById('campaignsTable').innerHTML = campaignsHtml;
+        }
+
+        // Load traffic sources
+        const sources = await api.getTrafficSources({ limit: 5 });
+        if (sources.length > 0) {
+          const sourcesHtml = sources.map(source => `
+            <tr>
+              <td>${source.source}</td>
+              <td>${source.sessions?.toLocaleString() || '0'}</td>
+              <td>${source.users?.toLocaleString() || '0'}</td>
+              <td>${(source.bounceRate || 0).toFixed(1)}%</td>
+              <td>${formatDuration(source.avgDuration || 0)}</td>
+            </tr>
+          `).join('');
+          document.getElementById('sourcesTable').innerHTML = sourcesHtml;
+        }
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      }
+    }
+
+    function formatDuration(seconds) {
+      if (seconds < 60) return `${seconds}s`;
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${minutes}m ${secs}s`;
+    }
+
+    // User menu
+    document.getElementById('userAvatar').addEventListener('click', () => {
+      if (confirm('Sign out?')) {
+        localStorage.removeItem('utm_token');
+        localStorage.removeItem('utm_user');
+        window.location.href = '/luxury-index';
+      }
+    });
+
+    // Initialize
+    loadUserData();
+    loadDashboardData();
+
+    // Refresh data every 30 seconds
+    setInterval(loadDashboardData, 30000);
+  </script>
+</body>
+</html>
