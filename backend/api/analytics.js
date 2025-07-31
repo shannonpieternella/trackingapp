@@ -429,4 +429,154 @@ router.get('/sessions', authMiddleware, async (req, res) => {
   }
 });
 
+// Get page analytics by source
+router.get('/pages-by-source', authMiddleware, async (req, res) => {
+  try {
+    const { domain, startDate, endDate } = req.query;
+    
+    const query = { userId: req.user._id };
+    if (domain) query.domain = domain;
+    
+    // Date range filter
+    if (startDate || endDate) {
+      query.startTime = {};
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        query.startTime.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        query.startTime.$lte = end;
+      }
+    }
+
+    // Aggregate page visits by source
+    const pagesBySource = await Session.aggregate([
+      { $match: query },
+      { $unwind: '$pages' },
+      {
+        $group: {
+          _id: {
+            page: '$pages.url',
+            source: '$utm.source'
+          },
+          visits: { $sum: 1 },
+          uniqueVisitors: { $addToSet: '$visitorId' }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.page',
+          sources: {
+            $push: {
+              source: '$_id.source',
+              visits: '$visits',
+              uniqueVisitors: { $size: '$uniqueVisitors' }
+            }
+          },
+          totalVisits: { $sum: '$visits' }
+        }
+      },
+      { $sort: { totalVisits: -1 } },
+      { $limit: 50 }
+    ]);
+
+    // Get top sources summary
+    const sourcesSummary = await Session.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: '$utm.source',
+          sessions: { $sum: 1 },
+          pageViews: { $sum: '$pageViews' },
+          uniqueVisitors: { $addToSet: '$visitorId' }
+        }
+      },
+      {
+        $project: {
+          source: '$_id',
+          sessions: 1,
+          pageViews: 1,
+          uniqueVisitors: { $size: '$uniqueVisitors' }
+        }
+      },
+      { $sort: { sessions: -1 } }
+    ]);
+
+    res.json({
+      pagesBySource,
+      sourcesSummary
+    });
+  } catch (error) {
+    console.error('Pages by source error:', error);
+    res.status(500).json({ error: 'Failed to fetch page analytics by source' });
+  }
+});
+
+// Get user flow by source
+router.get('/user-flow', authMiddleware, async (req, res) => {
+  try {
+    const { domain, source, startDate, endDate } = req.query;
+    
+    const query = { userId: req.user._id };
+    if (domain) query.domain = domain;
+    if (source && source !== 'all') query['utm.source'] = source;
+    
+    // Date range filter
+    if (startDate || endDate) {
+      query.startTime = {};
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        query.startTime.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        query.startTime.$lte = end;
+      }
+    }
+
+    // Get most common user paths
+    const userFlows = await Session.aggregate([
+      { $match: query },
+      {
+        $project: {
+          source: '$utm.source',
+          entryPage: '$entryPage.url',
+          exitPage: '$exitPage.url',
+          pageCount: '$pageViews',
+          path: {
+            $map: {
+              input: '$pages',
+              as: 'page',
+              in: '$$page.url'
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            entryPage: '$entryPage',
+            exitPage: '$exitPage',
+            pageCount: '$pageCount'
+          },
+          count: { $sum: 1 },
+          sources: { $push: '$source' }
+        }
+      },
+      { $sort: { count: -1 } },
+      { $limit: 20 }
+    ]);
+
+    res.json({ userFlows });
+  } catch (error) {
+    console.error('User flow error:', error);
+    res.status(500).json({ error: 'Failed to fetch user flow data' });
+  }
+});
+
 module.exports = router;

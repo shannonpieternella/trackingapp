@@ -215,6 +215,34 @@
       </div>
     </div>
 
+    <!-- Page Analytics by Source -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <h3 class="card-title">Top Pages by Traffic Source</h3>
+        <div class="text-secondary">See which pages get the most traffic from each source</div>
+      </div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Page</th>
+              <th>Total Visits</th>
+              <th>TikTok</th>
+              <th>Instagram</th>
+              <th>Facebook</th>
+              <th>Google</th>
+              <th>Direct</th>
+            </tr>
+          </thead>
+          <tbody id="pagesBySourceTable">
+            <tr>
+              <td colspan="7" class="text-center text-secondary">Loading page analytics...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Recent Sessions -->
     <div class="card">
       <div class="card-header">
@@ -284,6 +312,9 @@
         
         const url = `/analytics/dashboard${params.toString() ? '?' + params.toString() : ''}`;
         const data = await api.request(url);
+        
+        // Also load page analytics by source
+        loadPagesBySource();
 
         // Update stats
         document.getElementById('totalSessions').textContent = data.totalSessions || 0;
@@ -542,6 +573,59 @@
         month: 'short', 
         year: 'numeric' 
       });
+    }
+    
+    // Load page analytics by source
+    async function loadPagesBySource() {
+      try {
+        const params = new URLSearchParams();
+        if (currentDomain) {
+          params.append('domain', currentDomain);
+        }
+        if (currentStartDate) {
+          params.append('startDate', currentStartDate);
+        }
+        if (currentEndDate) {
+          params.append('endDate', currentEndDate);
+        }
+        
+        const url = `/analytics/pages-by-source${params.toString() ? '?' + params.toString() : ''}`;
+        const data = await api.request(url);
+        
+        if (data.pagesBySource && data.pagesBySource.length > 0) {
+          const tbody = document.getElementById('pagesBySourceTable');
+          tbody.innerHTML = data.pagesBySource.map(page => {
+            // Get traffic from each major source
+            const sources = ['tiktok', 'instagram', 'facebook', 'google', 'direct'];
+            const sourceCounts = {};
+            
+            sources.forEach(src => {
+              const sourceData = page.sources.find(s => s.source.toLowerCase() === src);
+              sourceCounts[src] = sourceData ? sourceData.visits : 0;
+            });
+            
+            return `
+              <tr>
+                <td>${page._id || '/'}</td>
+                <td><strong>${page.totalVisits}</strong></td>
+                <td>${sourceCounts.tiktok || '-'}</td>
+                <td>${sourceCounts.instagram || '-'}</td>
+                <td>${sourceCounts.facebook || '-'}</td>
+                <td>${sourceCounts.google || '-'}</td>
+                <td>${sourceCounts.direct || '-'}</td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          document.getElementById('pagesBySourceTable').innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center text-secondary">No page data available yet</td>
+            </tr>
+          `;
+        }
+      } catch (error) {
+        console.error('Failed to load pages by source:', error);
+      }
     }
     
     // Load data on page load

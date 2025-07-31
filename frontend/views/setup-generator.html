@@ -272,45 +272,81 @@
 '  var TRACKING_URL = \'' + TRACKING_URL + '\';\n' +
 '  var DOMAIN = \'' + domain + '\';\n' +
 '  \n' +
-'  // Generate unique visitor ID (persists across sessions)\n' +
-'  var visitorId = localStorage.getItem(\'utm_visitor_id\');\n' +
-'  if (!visitorId) {\n' +
-'    visitorId = \'v-\' + Date.now() + \'-\' + Math.random().toString(36).substr(2, 9);\n' +
-'    localStorage.setItem(\'utm_visitor_id\', visitorId);\n' +
+'  // Cookie functions\n' +
+'  function setCookie(name, value, days) {\n' +
+'    var expires = "";\n' +
+'    if (days) {\n' +
+'      var date = new Date();\n' +
+'      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));\n' +
+'      expires = "; expires=" + date.toUTCString();\n' +
+'    }\n' +
+'    document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";\n' +
 '  }\n' +
 '  \n' +
-'  // Generate session ID (new for each browser session)\n' +
-'  var sessionId = sessionStorage.getItem(\'utm_session_id\');\n' +
+'  function getCookie(name) {\n' +
+'    var nameEQ = name + "=";\n' +
+'    var ca = document.cookie.split(";");\n' +
+'    for (var i = 0; i < ca.length; i++) {\n' +
+'      var c = ca[i];\n' +
+'      while (c.charAt(0) == " ") c = c.substring(1, c.length);\n' +
+'      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);\n' +
+'    }\n' +
+'    return null;\n' +
+'  }\n' +
+'  \n' +
+'  // Generate unique visitor ID (persists for 365 days)\n' +
+'  var visitorId = getCookie(\'utm_visitor_id\');\n' +
+'  if (!visitorId) {\n' +
+'    visitorId = \'v-\' + Date.now() + \'-\' + Math.random().toString(36).substr(2, 9);\n' +
+'    setCookie(\'utm_visitor_id\', visitorId, 365);\n' +
+'  }\n' +
+'  \n' +
+'  // Generate session ID (expires in 24 hours)\n' +
+'  var sessionId = getCookie(\'utm_session_id\');\n' +
 '  if (!sessionId) {\n' +
 '    sessionId = \'s-\' + Date.now() + \'-\' + Math.random().toString(36).substr(2, 9);\n' +
-'    sessionStorage.setItem(\'utm_session_id\', sessionId);\n' +
+'    setCookie(\'utm_session_id\', sessionId, 1);\n' +
 '  }\n' +
 '  \n' +
 '  // Get UTM parameters from URL\n' +
 '  var urlParams = new URLSearchParams(window.location.search);\n' +
-'  var utmSource = urlParams.get(\'utm_source\') || localStorage.getItem(\'utm_source\') || \'direct\';\n' +
-'  var utmMedium = urlParams.get(\'utm_medium\') || localStorage.getItem(\'utm_medium\') || \'none\';\n' +
-'  var utmCampaign = urlParams.get(\'utm_campaign\') || localStorage.getItem(\'utm_campaign\') || \'\';\n' +
+'  var utmSource = urlParams.get(\'utm_source\');\n' +
+'  var utmMedium = urlParams.get(\'utm_medium\');\n' +
+'  var utmCampaign = urlParams.get(\'utm_campaign\');\n' +
+'  var utmContent = urlParams.get(\'utm_content\');\n' +
+'  var utmTerm = urlParams.get(\'utm_term\');\n' +
 '  \n' +
-'  // Store UTM params for the session\n' +
-'  if (urlParams.get(\'utm_source\')) {\n' +
-'    localStorage.setItem(\'utm_source\', utmSource);\n' +
-'    localStorage.setItem(\'utm_medium\', utmMedium);\n' +
-'    localStorage.setItem(\'utm_campaign\', utmCampaign);\n' +
+'  // If new UTM params found, update cookies (24 hour expiry)\n' +
+'  if (utmSource) {\n' +
+'    setCookie(\'utm_source\', utmSource, 1);\n' +
+'    setCookie(\'utm_medium\', utmMedium || \'none\', 1);\n' +
+'    setCookie(\'utm_campaign\', utmCampaign || \'(not set)\', 1);\n' +
+'    if (utmContent) setCookie(\'utm_content\', utmContent, 1);\n' +
+'    if (utmTerm) setCookie(\'utm_term\', utmTerm, 1);\n' +
 '  }\n' +
 '  \n' +
-'  // Send tracking pixel\n' +
+'  // Get UTM params from cookies or default\n' +
+'  utmSource = utmSource || getCookie(\'utm_source\') || \'direct\';\n' +
+'  utmMedium = utmMedium || getCookie(\'utm_medium\') || \'none\';\n' +
+'  utmCampaign = utmCampaign || getCookie(\'utm_campaign\') || \'(not set)\';\n' +
+'  utmContent = utmContent || getCookie(\'utm_content\') || \'\';\n' +
+'  utmTerm = utmTerm || getCookie(\'utm_term\') || \'\';\n' +
+'  \n' +
+'  // Send tracking pixel with all data\n' +
 '  var img = new Image(1, 1);\n' +
 '  img.src = TRACKING_URL + \'/t.gif?\' + \n' +
 '    \'sid=\' + encodeURIComponent(sessionId) +\n' +
 '    \'&vid=\' + encodeURIComponent(visitorId) +\n' +
 '    \'&d=\' + encodeURIComponent(DOMAIN) +\n' +
-'    \'&p=\' + encodeURIComponent(window.location.pathname) +\n' +
+'    \'&p=\' + encodeURIComponent(window.location.href) +\n' +
 '    \'&t=\' + encodeURIComponent(document.title) +\n' +
 '    \'&r=\' + encodeURIComponent(document.referrer) +\n' +
 '    \'&utm_source=\' + encodeURIComponent(utmSource) +\n' +
 '    \'&utm_medium=\' + encodeURIComponent(utmMedium) +\n' +
-'    \'&utm_campaign=\' + encodeURIComponent(utmCampaign);\n' +
+'    \'&utm_campaign=\' + encodeURIComponent(utmCampaign) +\n' +
+'    \'&utm_content=\' + encodeURIComponent(utmContent) +\n' +
+'    \'&utm_term=\' + encodeURIComponent(utmTerm) +\n' +
+'    \'&ts=\' + Date.now();\n' +
 '})();\n' +
 '</scr' + 'ipt>';
 
@@ -321,8 +357,10 @@
       const baseUrl = domain.startsWith('http') ? domain : 'https://' + domain;
       const testUrls = [
         { label: 'Direct:', url: baseUrl },
-        { label: 'Google:', url: `${baseUrl}/?utm_source=google&utm_medium=cpc&utm_campaign=test` },
+        { label: 'TikTok:', url: `${baseUrl}/?utm_source=tiktok&utm_medium=social&utm_campaign=test` },
+        { label: 'Instagram:', url: `${baseUrl}/?utm_source=instagram&utm_medium=social&utm_campaign=test` },
         { label: 'Facebook:', url: `${baseUrl}/?utm_source=facebook&utm_medium=social&utm_campaign=test` },
+        { label: 'Google:', url: `${baseUrl}/?utm_source=google&utm_medium=cpc&utm_campaign=test` },
         { label: 'Email:', url: `${baseUrl}/?utm_source=email&utm_medium=newsletter&utm_campaign=test` }
       ];
 
