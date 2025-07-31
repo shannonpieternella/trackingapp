@@ -6,7 +6,7 @@
   <title>User Journey - UTM Tracker</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
-    /* Domain filter */
+    /* Filter section */
     .filter-section {
       background: #f3f4f6;
       padding: 20px;
@@ -15,20 +15,22 @@
       display: flex;
       align-items: center;
       gap: 20px;
+      flex-wrap: wrap;
     }
     
-    .domain-filter {
+    .filter-group {
       display: flex;
       align-items: center;
       gap: 10px;
     }
     
-    .domain-filter label {
+    .filter-group label {
       font-weight: 600;
       color: #374151;
     }
     
-    .domain-filter select {
+    .filter-group select,
+    .filter-group input[type="date"] {
       padding: 8px 12px;
       border: 2px solid #d1d5db;
       border-radius: 6px;
@@ -37,114 +39,277 @@
       min-width: 200px;
     }
     
+    .date-filter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
     .filter-info {
+      color: #6b7280;
+      font-size: 14px;
+      width: 100%;
+    }
+    
+    /* Visual Flow Section */
+    .flow-section {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .flow-header {
+      margin-bottom: 25px;
+    }
+    
+    .flow-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2937;
+      margin: 0 0 8px 0;
+    }
+    
+    .flow-subtitle {
       color: #6b7280;
       font-size: 14px;
     }
     
-    .journey-container {
-      max-width: 1200px;
-      margin: 0 auto;
+    /* Source Cards */
+    .source-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
     }
     
-    .session-path {
+    .source-card {
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .source-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .source-card.active {
+      background: #eff6ff;
+      border-color: #3b82f6;
+    }
+    
+    .source-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    
+    .source-name {
+      font-weight: 700;
+      font-size: 16px;
+      color: #1f2937;
+      margin-bottom: 5px;
+    }
+    
+    .source-count {
+      font-size: 24px;
+      font-weight: 700;
+      color: #3b82f6;
+      margin-bottom: 5px;
+    }
+    
+    .source-label {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    /* Flow Visualization */
+    .flow-container {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 30px;
+      overflow-x: auto;
+    }
+    
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      min-width: fit-content;
+      margin: 0 auto;
+      padding: 20px 0;
+    }
+    
+    .flow-node {
+      text-align: center;
+      position: relative;
+    }
+    
+    .node-box {
+      background: white;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      padding: 20px;
+      min-width: 150px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .node-box.landing {
+      border-color: #10b981;
+      background: #ecfdf5;
+    }
+    
+    .node-box.popular {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    
+    .node-box.exit {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+    
+    .node-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .node-count {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+    
+    .node-label {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      color: #9ca3af;
+      font-size: 24px;
+      position: relative;
+    }
+    
+    .arrow-label {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #6b7280;
+      white-space: nowrap;
+    }
+    
+    /* Individual Journeys */
+    .journey-list {
+      margin-top: 30px;
+    }
+    
+    .journey-item {
       background: white;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
       padding: 20px;
       margin-bottom: 15px;
-      transition: all 0.2s;
     }
     
-    .session-path:hover {
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    .session-header {
+    .journey-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
     }
     
-    .session-info {
+    .journey-badges {
       display: flex;
+      gap: 10px;
       align-items: center;
-      gap: 20px;
     }
     
-    .visitor-badge {
-      background: #e0e7ff;
-      color: #4338ca;
+    .badge {
       padding: 4px 12px;
       border-radius: 12px;
       font-size: 12px;
       font-weight: 600;
     }
     
-    .source-badge {
-      background: #dcfce7;
-      color: #166534;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
+    .badge-source {
+      background: #dbeafe;
+      color: #1e40af;
     }
     
-    .time-badge {
+    .badge-time {
+      background: #f3f4f6;
       color: #6b7280;
-      font-size: 14px;
     }
     
-    .path-flow {
+    .journey-path {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 15px;
       overflow-x: auto;
       padding: 10px 0;
     }
     
-    .page-node {
+    .path-step {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .page-bubble {
       background: #f3f4f6;
       border: 1px solid #d1d5db;
       padding: 8px 16px;
-      border-radius: 6px;
-      white-space: nowrap;
+      border-radius: 20px;
       font-size: 14px;
-      min-width: fit-content;
+      white-space: nowrap;
     }
     
-    .page-node.entry {
-      background: #dbeafe;
-      border-color: #60a5fa;
+    .page-bubble.entry {
+      background: #d1fae5;
+      border-color: #34d399;
       font-weight: 600;
     }
     
-    .page-node.exit {
+    .page-bubble.exit {
       background: #fee2e2;
       border-color: #f87171;
     }
     
-    .path-arrow {
+    .path-connector {
       color: #9ca3af;
       font-size: 18px;
     }
     
-    .session-stats {
+    .journey-stats {
       display: flex;
-      gap: 30px;
+      gap: 20px;
       margin-top: 15px;
       padding-top: 15px;
       border-top: 1px solid #e5e7eb;
       font-size: 14px;
     }
     
-    .stat-item {
+    .stat {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     
-    .stat-label {
+    .stat-icon {
       color: #6b7280;
     }
     
@@ -153,50 +318,7 @@
       color: #1f2937;
     }
     
-    .source-summary {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    
-    .source-card {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 20px;
-    }
-    
-    .source-card h4 {
-      margin: 0 0 15px 0;
-      color: #1f2937;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    
-    .source-count {
-      background: #3b82f6;
-      color: white;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 12px;
-    }
-    
-    .filter-bar {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      align-items: center;
-    }
-    
-    .filter-bar select {
-      padding: 8px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    
+    /* Empty state */
     .empty-state {
       text-align: center;
       padding: 60px 20px;
@@ -206,7 +328,16 @@
     .empty-state h3 {
       color: #374151;
       margin-bottom: 10px;
+      font-size: 20px;
     }
+    
+    /* Icons for sources */
+    .tiktok { color: #000; }
+    .instagram { color: #E4405F; }
+    .facebook { color: #1877F2; }
+    .google { color: #4285F4; }
+    .direct { color: #6b7280; }
+    .email { color: #059669; }
   </style>
 </head>
 <body>
@@ -234,49 +365,80 @@
 
   <!-- Main Content -->
   <div class="container mt-6">
-    <!-- Domain Filter -->
+    <!-- Filters -->
     <div class="filter-section">
-      <div class="domain-filter">
+      <div class="filter-group">
         <label for="domainSelect">Domain:</label>
-        <select id="domainSelect" onchange="handleDomainChange()">
+        <select id="domainSelect" onchange="handleFilterChange()">
           <option value="">All Domains</option>
         </select>
       </div>
+      
+      <div class="filter-group">
+        <label for="quickDate">Periode:</label>
+        <select id="quickDate" onchange="handleQuickDateChange()">
+          <option value="custom">Aangepast</option>
+          <option value="today">Vandaag</option>
+          <option value="yesterday">Gisteren</option>
+          <option value="7days" selected>Laatste 7 dagen</option>
+          <option value="30days">Laatste 30 dagen</option>
+          <option value="thisMonth">Deze maand</option>
+          <option value="lastMonth">Vorige maand</option>
+        </select>
+      </div>
+      
+      <div class="date-filter">
+        <div class="filter-group">
+          <label for="startDate">Van:</label>
+          <input type="date" id="startDate" onchange="handleFilterChange()">
+        </div>
+        
+        <div class="filter-group">
+          <label for="endDate">Tot:</label>
+          <input type="date" id="endDate" onchange="handleFilterChange()">
+        </div>
+      </div>
+      
       <div class="filter-info" id="filterInfo"></div>
     </div>
-    
-    <div class="journey-container">
-      <div class="card mb-6">
-        <div class="card-header">
-          <h2 class="card-title">User Journey Visualization</h2>
-          <p class="text-secondary">See how visitors navigate through your website</p>
-        </div>
 
-        <!-- Summary by Source -->
-        <div id="sourceSummary" class="source-summary">
+    <!-- Traffic Source Overview -->
+    <div class="flow-section">
+      <div class="flow-header">
+        <h2 class="flow-title">Traffic Sources Overview</h2>
+        <p class="flow-subtitle">Klik op een bron om de user journeys te zien</p>
+      </div>
+      
+      <div class="source-cards" id="sourceCards">
+        <!-- Will be populated by JS -->
+      </div>
+    </div>
+
+    <!-- Flow Visualization -->
+    <div class="flow-section" id="flowVisualization" style="display: none;">
+      <div class="flow-header">
+        <h2 class="flow-title" id="flowTitle">User Flow</h2>
+        <p class="flow-subtitle" id="flowSubtitle">Meest voorkomende paden door je website</p>
+      </div>
+      
+      <div class="flow-container">
+        <div class="flow-diagram" id="flowDiagram">
           <!-- Will be populated by JS -->
         </div>
+      </div>
+    </div>
 
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-          <select id="sourceFilter" onchange="filterSessions()">
-            <option value="">All Sources</option>
-          </select>
-          <select id="pageFilter" onchange="filterSessions()">
-            <option value="">All Page Counts</option>
-            <option value="1">Single Page (Bounce)</option>
-            <option value="2-3">2-3 Pages</option>
-            <option value="4+">4+ Pages</option>
-          </select>
-          <span class="text-secondary">Showing: <strong id="sessionCount">0</strong> sessions</span>
-        </div>
-
-        <!-- Session Paths -->
-        <div id="sessionPaths">
-          <div class="empty-state">
-            <h3>No visitor journeys yet</h3>
-            <p>Once you have tracking installed, visitor paths will appear here.</p>
-          </div>
+    <!-- Individual Journeys -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Individual User Journeys</h3>
+        <p class="text-secondary">Bekijk exacte paden van individuele bezoekers</p>
+      </div>
+      
+      <div class="journey-list" id="journeyList">
+        <div class="empty-state">
+          <h3>Geen user journeys beschikbaar</h3>
+          <p>Zodra je tracking hebt geïnstalleerd, verschijnen hier de bezoekers paden.</p>
         </div>
       </div>
     </div>
@@ -294,194 +456,309 @@
     const user = JSON.parse(localStorage.getItem('utm_user') || '{}');
     document.getElementById('userName').textContent = user.name || user.email || '';
 
+    // State
+    let currentDomain = '';
+    let currentStartDate = '';
+    let currentEndDate = '';
+    let selectedSource = null;
     let allSessions = [];
-    let sourceCounts = {};
+    let pagesBySource = {};
 
-    // Load all sessions
-    async function loadJourneys() {
+    // Source icons
+    const sourceIcons = {
+      tiktok: '📱',
+      instagram: '📷',
+      facebook: '👥',
+      google: '🔍',
+      direct: '🌐',
+      email: '📧'
+    };
+
+    // Load dashboard data
+    async function loadJourneyData() {
       try {
         // Build query params
-        const params = { limit: 100 };
-        if (currentDomain) {
-          params.domain = currentDomain;
-        }
+        const params = new URLSearchParams();
+        if (currentDomain) params.append('domain', currentDomain);
+        if (currentStartDate) params.append('startDate', currentStartDate);
+        if (currentEndDate) params.append('endDate', currentEndDate);
         
-        const data = await api.getSessions(params);
-        allSessions = data.sessions || [];
+        // Load sessions
+        const sessionsData = await api.request(`/analytics/sessions?${params.toString()}&limit=200`);
+        allSessions = sessionsData.sessions || [];
         
-        // Calculate source summary
-        sourceCounts = {};
-        const sourceFilterSelect = document.getElementById('sourceFilter');
-        sourceFilterSelect.innerHTML = '<option value="">All Sources</option>';
+        // Load pages by source
+        const pagesData = await api.request(`/analytics/pages-by-source?${params.toString()}`);
+        pagesBySource = pagesData.pagesBySource || [];
         
-        allSessions.forEach(session => {
-          const source = session.utm?.source || 'direct';
-          if (!sourceCounts[source]) {
-            sourceCounts[source] = {
-              count: 0,
-              totalPages: 0,
-              totalDuration: 0,
-              bounced: 0
-            };
-          }
-          sourceCounts[source].count++;
-          sourceCounts[source].totalPages += session.pageViews || 0;
-          sourceCounts[source].totalDuration += session.duration || 0;
-          if (session.bounced) sourceCounts[source].bounced++;
-        });
+        // Display source cards
+        displaySourceCards();
         
-        // Display source summary
-        const summaryHtml = Object.entries(sourceCounts).map(([source, data]) => {
-          const avgPages = (data.totalPages / data.count).toFixed(1);
-          const avgDuration = (data.totalDuration / data.count).toFixed(0);
-          const bounceRate = ((data.bounced / data.count) * 100).toFixed(0);
-          
-          // Add to filter dropdown
-          const option = document.createElement('option');
-          option.value = source;
-          option.textContent = source;
-          sourceFilterSelect.appendChild(option);
-          
-          return `
-            <div class="source-card">
-              <h4>${source} <span class="source-count">${data.count}</span></h4>
-              <div class="stat-item">
-                <span class="stat-label">Avg Pages:</span>
-                <span class="stat-value">${avgPages}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">Avg Duration:</span>
-                <span class="stat-value">${avgDuration}s</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">Bounce Rate:</span>
-                <span class="stat-value">${bounceRate}%</span>
-              </div>
-            </div>
-          `;
-        }).join('');
-        
-        document.getElementById('sourceSummary').innerHTML = summaryHtml || '<p class="text-secondary">No traffic sources found</p>';
-        
-        // Display all sessions initially
-        displaySessions(allSessions);
+        // Display all journeys
+        displayJourneys(allSessions);
         
       } catch (error) {
-        console.error('Failed to load journeys:', error);
-        document.getElementById('sessionPaths').innerHTML = '<p class="text-danger text-center">Failed to load journey data</p>';
+        console.error('Failed to load journey data:', error);
       }
     }
 
-    // Display sessions
-    function displaySessions(sessions) {
-      if (!sessions || sessions.length === 0) {
-        document.getElementById('sessionPaths').innerHTML = `
-          <div class="empty-state">
-            <h3>No sessions match your filters</h3>
-            <p>Try adjusting the filters above.</p>
+    // Display source cards
+    function displaySourceCards() {
+      // Count sessions by source
+      const sourceCounts = {};
+      allSessions.forEach(session => {
+        const source = session.utm?.source || 'direct';
+        if (!sourceCounts[source]) {
+          sourceCounts[source] = {
+            sessions: 0,
+            visitors: new Set(),
+            totalPageViews: 0,
+            bounced: 0
+          };
+        }
+        sourceCounts[source].sessions++;
+        sourceCounts[source].visitors.add(session.visitorId);
+        sourceCounts[source].totalPageViews += session.pageViews || 0;
+        if (session.bounced) sourceCounts[source].bounced++;
+      });
+
+      // Create source cards
+      const cardsHtml = Object.entries(sourceCounts).map(([source, data]) => {
+        const icon = sourceIcons[source.toLowerCase()] || '🌐';
+        const avgPages = (data.totalPageViews / data.sessions).toFixed(1);
+        const bounceRate = ((data.bounced / data.sessions) * 100).toFixed(0);
+        
+        return `
+          <div class="source-card ${selectedSource === source ? 'active' : ''}" onclick="selectSource('${source}')">
+            <div class="source-icon ${source.toLowerCase()}">${icon}</div>
+            <div class="source-name">${source}</div>
+            <div class="source-count">${data.sessions}</div>
+            <div class="source-label">sessies</div>
+            <div style="font-size: 12px; color: #6b7280; margin-top: 10px;">
+              ${data.visitors.size} unieke bezoekers<br>
+              ${avgPages} pagina's gemiddeld<br>
+              ${bounceRate}% bounce rate
+            </div>
           </div>
         `;
-        document.getElementById('sessionCount').textContent = '0';
-        return;
+      }).join('');
+
+      document.getElementById('sourceCards').innerHTML = cardsHtml || '<p class="text-secondary">Geen traffic bronnen gevonden</p>';
+    }
+
+    // Select source
+    function selectSource(source) {
+      selectedSource = selectedSource === source ? null : source;
+      displaySourceCards();
+      
+      if (selectedSource) {
+        // Show flow visualization
+        displayFlowVisualization(source);
+        
+        // Filter journeys by source
+        const filtered = allSessions.filter(s => (s.utm?.source || 'direct') === source);
+        displayJourneys(filtered);
+      } else {
+        // Hide flow visualization
+        document.getElementById('flowVisualization').style.display = 'none';
+        
+        // Show all journeys
+        displayJourneys(allSessions);
+      }
+    }
+
+    // Display flow visualization
+    function displayFlowVisualization(source) {
+      const filtered = allSessions.filter(s => (s.utm?.source || 'direct') === source);
+      
+      // Count page visits
+      const pageCounts = {};
+      const entryPages = {};
+      const exitPages = {};
+      
+      filtered.forEach(session => {
+        // Entry page
+        const entry = session.entryPage?.url || '/';
+        entryPages[entry] = (entryPages[entry] || 0) + 1;
+        
+        // Exit page
+        const exit = session.exitPage?.url || entry;
+        exitPages[exit] = (exitPages[exit] || 0) + 1;
+        
+        // All pages
+        if (session.pages) {
+          session.pages.forEach(page => {
+            const url = page.url || '/';
+            pageCounts[url] = (pageCounts[url] || 0) + 1;
+          });
+        }
+      });
+      
+      // Get top pages
+      const topEntry = Object.entries(entryPages).sort((a, b) => b[1] - a[1])[0];
+      const topPages = Object.entries(pageCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      const topExit = Object.entries(exitPages).sort((a, b) => b[1] - a[1])[0];
+      
+      // Create flow diagram
+      let flowHtml = '';
+      
+      if (topEntry) {
+        // Landing page
+        flowHtml += `
+          <div class="flow-node">
+            <div class="node-box landing">
+              <div class="node-title">Meest bezochte landingspagina</div>
+              <div class="node-count">${topEntry[1]}</div>
+              <div class="node-label">${topEntry[0]}</div>
+            </div>
+          </div>
+        `;
+        
+        // Arrow
+        flowHtml += `
+          <div class="flow-arrow">
+            <span class="arrow-label">${Math.round((topEntry[1] / filtered.length) * 100)}%</span>
+            →
+          </div>
+        `;
+        
+        // Popular pages
+        flowHtml += `
+          <div class="flow-node">
+            <div class="node-box popular">
+              <div class="node-title">Populaire pagina's</div>
+              ${topPages.map(([url, count]) => `
+                <div style="margin: 8px 0;">
+                  <div style="font-size: 14px; font-weight: 600;">${count} visits</div>
+                  <div style="font-size: 12px; color: #6b7280;">${url}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        
+        // Arrow
+        if (topExit && topExit[0] !== topEntry[0]) {
+          flowHtml += `
+            <div class="flow-arrow">
+              <span class="arrow-label">${Math.round((topExit[1] / filtered.length) * 100)}%</span>
+              →
+            </div>
+          `;
+          
+          // Exit page
+          flowHtml += `
+            <div class="flow-node">
+              <div class="node-box exit">
+                <div class="node-title">Meest verlaten pagina</div>
+                <div class="node-count">${topExit[1]}</div>
+                <div class="node-label">${topExit[0]}</div>
+              </div>
+            </div>
+          `;
+        }
       }
       
-      document.getElementById('sessionCount').textContent = sessions.length;
-      
-      const pathsHtml = sessions.map(session => {
-        const visitorShort = session.visitorId ? session.visitorId.substring(0, 8) : 'Unknown';
+      document.getElementById('flowDiagram').innerHTML = flowHtml;
+      document.getElementById('flowTitle').textContent = `${source} Traffic Flow`;
+      document.getElementById('flowSubtitle').textContent = `${filtered.length} sessies geanalyseerd`;
+      document.getElementById('flowVisualization').style.display = 'block';
+    }
+
+    // Display individual journeys
+    function displayJourneys(sessions) {
+      if (!sessions || sessions.length === 0) {
+        document.getElementById('journeyList').innerHTML = `
+          <div class="empty-state">
+            <h3>Geen journeys gevonden</h3>
+            <p>Probeer andere filters of selecteer een andere traffic bron.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const journeysHtml = sessions.slice(0, 50).map(session => {
         const source = session.utm?.source || 'direct';
-        const medium = session.utm?.medium || 'none';
-        const campaign = session.utm?.campaign || '';
+        const icon = sourceIcons[source.toLowerCase()] || '🌐';
         
-        // Create page path
+        // Create path visualization
         let pathHtml = '';
         if (session.pages && session.pages.length > 0) {
           pathHtml = session.pages.map((page, index) => {
             const isEntry = index === 0;
             const isExit = index === session.pages.length - 1;
-            const className = isEntry ? 'entry' : (isExit ? 'exit' : '');
+            const bubbleClass = isEntry ? 'entry' : (isExit ? 'exit' : '');
+            
             return `
-              ${index > 0 ? '<span class="path-arrow">→</span>' : ''}
-              <div class="page-node ${className}">
-                ${page.url || '/'}
+              <div class="path-step">
+                <div class="page-bubble ${bubbleClass}">
+                  ${page.url || '/'}
+                </div>
+                ${index < session.pages.length - 1 ? '<span class="path-connector">→</span>' : ''}
               </div>
             `;
           }).join('');
-        } else if (session.entryPage || session.exitPage) {
-          // Fallback for sessions without detailed page data
+        } else {
+          // Fallback
           pathHtml = `
-            <div class="page-node entry">${session.entryPage?.url || '/'}</div>
+            <div class="page-bubble entry">${session.entryPage?.url || '/'}</div>
             ${session.pageViews > 1 ? `
-              <span class="path-arrow">→</span>
-              <div class="page-node">${session.pageViews - 2} more page${session.pageViews - 2 !== 1 ? 's' : ''}</div>
-              <span class="path-arrow">→</span>
-              <div class="page-node exit">${session.exitPage?.url || session.entryPage?.url || '/'}</div>
+              <span class="path-connector">→</span>
+              <div class="page-bubble">...</div>
+              <span class="path-connector">→</span>
+              <div class="page-bubble exit">${session.exitPage?.url || '/'}</div>
             ` : ''}
           `;
-        } else {
-          pathHtml = '<div class="page-node">No page data</div>';
         }
         
         return `
-          <div class="session-path">
-            <div class="session-header">
-              <div class="session-info">
-                <span class="visitor-badge">Visitor: ${visitorShort}</span>
-                <span class="source-badge">${source}/${medium}</span>
-                ${campaign ? `<span class="text-secondary">${campaign}</span>` : ''}
+          <div class="journey-item">
+            <div class="journey-header">
+              <div class="journey-badges">
+                <span class="badge badge-source">${icon} ${source}</span>
+                ${session.utm?.campaign ? `<span class="badge" style="background: #f3f4f6;">${session.utm.campaign}</span>` : ''}
+                <span class="badge badge-time">${formatTimeAgo(session.startTime)}</span>
               </div>
-              <span class="time-badge">${formatDate(session.startTime)}</span>
+              <div style="color: #6b7280; font-size: 14px;">
+                Visitor: ${session.visitorId?.substring(0, 8) || 'Unknown'}
+              </div>
             </div>
             
-            <div class="path-flow">
+            <div class="journey-path">
               ${pathHtml}
             </div>
             
-            <div class="session-stats">
-              <div class="stat-item">
-                <span class="stat-label">Pages viewed:</span>
+            <div class="journey-stats">
+              <div class="stat">
+                <span class="stat-icon">📄</span>
                 <span class="stat-value">${session.pageViews || 0}</span>
+                <span style="color: #6b7280;">pagina's</span>
               </div>
-              <div class="stat-item">
-                <span class="stat-label">Duration:</span>
+              <div class="stat">
+                <span class="stat-icon">⏱️</span>
                 <span class="stat-value">${formatDuration(session.duration || 0)}</span>
               </div>
-              ${session.bounced ? '<span class="stat-item" style="color: #ef4444;">Bounced</span>' : ''}
+              ${session.bounced ? '<div class="stat" style="color: #ef4444;">🚪 Bounced</div>' : ''}
             </div>
           </div>
         `;
       }).join('');
-      
-      document.getElementById('sessionPaths').innerHTML = pathsHtml;
+
+      document.getElementById('journeyList').innerHTML = journeysHtml;
     }
 
-    // Filter sessions
-    function filterSessions() {
-      const sourceFilter = document.getElementById('sourceFilter').value;
-      const pageFilter = document.getElementById('pageFilter').value;
+    // Format time ago
+    function formatTimeAgo(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = now - date;
+      const minutes = Math.floor(diff / 60000);
       
-      let filtered = allSessions;
+      if (minutes < 60) return `${minutes}m geleden`;
+      if (minutes < 1440) return `${Math.floor(minutes / 60)}u geleden`;
+      if (minutes < 10080) return `${Math.floor(minutes / 1440)}d geleden`;
       
-      // Filter by source
-      if (sourceFilter) {
-        filtered = filtered.filter(session => {
-          const source = session.utm?.source || 'direct';
-          return source === sourceFilter;
-        });
-      }
-      
-      // Filter by page count
-      if (pageFilter) {
-        filtered = filtered.filter(session => {
-          const pages = session.pageViews || 0;
-          if (pageFilter === '1') return pages === 1;
-          if (pageFilter === '2-3') return pages >= 2 && pages <= 3;
-          if (pageFilter === '4+') return pages >= 4;
-          return true;
-        });
-      }
-      
-      displaySessions(filtered);
+      return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
     }
 
     // Format duration
@@ -492,27 +769,6 @@
       return `${minutes}m ${secs}s`;
     }
 
-    // Format date
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffMs = now - date;
-      const diffMins = Math.floor(diffMs / 60000);
-      
-      if (diffMins < 60) return `${diffMins}m ago`;
-      if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-      
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-
-    // Store current domain filter
-    let currentDomain = '';
-    
     // Load user domains
     async function loadDomains() {
       try {
@@ -531,11 +787,38 @@
           }
         });
         
-        // Restore previous selection if exists
+        // Restore previous selections
         const savedDomain = localStorage.getItem('selectedDomain');
+        const savedStartDate = localStorage.getItem('selectedStartDate');
+        const savedEndDate = localStorage.getItem('selectedEndDate');
+        
         if (savedDomain && domains.some(d => d.domain === savedDomain)) {
           select.value = savedDomain;
           currentDomain = savedDomain;
+        }
+        
+        if (savedStartDate) {
+          document.getElementById('startDate').value = savedStartDate;
+          currentStartDate = savedStartDate;
+        }
+        
+        if (savedEndDate) {
+          document.getElementById('endDate').value = savedEndDate;
+          currentEndDate = savedEndDate;
+        }
+        
+        // Set default date range if no dates saved
+        if (!savedStartDate && !savedEndDate) {
+          const today = new Date();
+          const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+          
+          document.getElementById('startDate').value = weekAgo.toISOString().split('T')[0];
+          document.getElementById('endDate').value = today.toISOString().split('T')[0];
+          
+          currentStartDate = weekAgo.toISOString().split('T')[0];
+          currentEndDate = today.toISOString().split('T')[0];
+          
+          document.getElementById('quickDate').value = '7days';
         }
         
         updateFilterInfo();
@@ -543,31 +826,128 @@
         console.error('Error loading domains:', error);
       }
     }
-    
-    // Handle domain filter change
-    function handleDomainChange() {
-      const select = document.getElementById('domainSelect');
-      currentDomain = select.value;
+
+    // Handle filter changes
+    function handleFilterChange() {
+      const domainSelect = document.getElementById('domainSelect');
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      
+      currentDomain = domainSelect.value;
+      currentStartDate = startDateInput.value;
+      currentEndDate = endDateInput.value;
+      
+      // Save filters
       localStorage.setItem('selectedDomain', currentDomain);
+      localStorage.setItem('selectedStartDate', currentStartDate);
+      localStorage.setItem('selectedEndDate', currentEndDate);
+      
+      document.getElementById('quickDate').value = 'custom';
+      
       updateFilterInfo();
-      loadJourneys();
+      loadJourneyData();
     }
-    
-    // Update filter info text
+
+    // Handle quick date selection
+    function handleQuickDateChange() {
+      const quickDateSelect = document.getElementById('quickDate');
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      
+      const today = new Date();
+      let startDate, endDate;
+      
+      switch (quickDateSelect.value) {
+        case 'today':
+          startDate = today;
+          endDate = today;
+          break;
+        case 'yesterday':
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+          startDate = yesterday;
+          endDate = yesterday;
+          break;
+        case '7days':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 7);
+          endDate = today;
+          break;
+        case '30days':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 30);
+          endDate = today;
+          break;
+        case 'thisMonth':
+          startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+          endDate = today;
+          break;
+        case 'lastMonth':
+          const lastMonth = new Date(today);
+          lastMonth.setMonth(today.getMonth() - 1);
+          startDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
+          endDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+          break;
+        case 'custom':
+          return;
+        default:
+          return;
+      }
+      
+      startDateInput.value = startDate.toISOString().split('T')[0];
+      endDateInput.value = endDate.toISOString().split('T')[0];
+      
+      currentStartDate = startDateInput.value;
+      currentEndDate = endDateInput.value;
+      
+      localStorage.setItem('selectedStartDate', currentStartDate);
+      localStorage.setItem('selectedEndDate', currentEndDate);
+      
+      updateFilterInfo();
+      loadJourneyData();
+    }
+
+    // Update filter info
     function updateFilterInfo() {
       const info = document.getElementById('filterInfo');
+      let infoText = [];
+      
       if (currentDomain) {
-        info.textContent = `Showing journeys for: ${currentDomain}`;
+        infoText.push(`Domain: ${currentDomain}`);
       } else {
-        info.textContent = 'Showing journeys for all your domains';
+        infoText.push('Alle domeinen');
       }
+      
+      if (currentStartDate || currentEndDate) {
+        let dateRange = 'Periode: ';
+        if (currentStartDate && currentEndDate) {
+          dateRange += `${formatDateDisplay(currentStartDate)} - ${formatDateDisplay(currentEndDate)}`;
+        } else if (currentStartDate) {
+          dateRange += `vanaf ${formatDateDisplay(currentStartDate)}`;
+        } else if (currentEndDate) {
+          dateRange += `tot ${formatDateDisplay(currentEndDate)}`;
+        }
+        infoText.push(dateRange);
+      }
+      
+      info.textContent = infoText.join(' | ');
     }
-    
-    // Load data on page load
-    loadDomains().then(() => loadJourneys());
+
+    // Format date for display
+    function formatDateDisplay(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('nl-NL', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+    }
+
+    // Initialize
+    loadDomains().then(() => loadJourneyData());
     
     // Refresh every 30 seconds
-    setInterval(loadJourneys, 30000);
+    setInterval(loadJourneyData, 30000);
   </script>
 </body>
 </html>
