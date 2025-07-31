@@ -1,0 +1,126 @@
+/* Contrast Fixes for Journey and UTM Builder */
+
+/* Journey Flow Fixes */
+.flow-node .node-box {
+  background: #f3f4f6 !important;
+  border: 2px solid #d1d5db !important;
+}
+
+.flow-node .node-title {
+  color: #1f2937 !important;
+  font-weight: 700 !important;
+}
+
+.flow-node .node-value {
+  color: #374151 !important;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+}
+
+.flow-node .node-label {
+  color: #6b7280 !important;
+}
+
+/* UTM Builder Dark Background Fix */
+.result-url {
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
+  border: 2px solid #e5e7eb !important;
+  font-weight: 600 !important;
+}
+
+/* Journey Specific */
+.journey-flow .flow-container {
+  background: #f8f9fa !important;
+}
+
+.journey-flow .flow-box {
+  background: white !important;
+  border: 2px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+.journey-flow h3,
+.journey-flow h4 {
+  color: #1f2937 !important;
+}
+
+.journey-flow p {
+  color: #4b5563 !important;
+}
+
+/* Navigation fixes */
+.navbar {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Table fixes for journey */
+.journey-table th {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+}
+
+.journey-table td {
+  background: white !important;
+  color: #1f2937 !important;
+}
+
+/* Source cards in journey */
+.source-card {
+  background: white !important;
+  color: #1f2937 !important;
+}
+
+.source-card h4 {
+  color: #1f2937 !important;
+}
+
+.source-card .count {
+  color: #3b82f6 !important;
+}
+
+/* Flow arrows fix */
+.flow-arrow {
+  color: #6b7280 !important;
+}
+
+/* Additional journey elements */
+.node-content {
+  color: #1f2937 !important;
+}
+
+.node-percentage {
+  color: #3b82f6 !important;
+  font-weight: 700 !important;
+}
+
+/* Fix for any remaining white on white */
+.flow-section * {
+  color: #1f2937 !important;
+}
+
+.flow-section .badge {
+  background: #e5e7eb !important;
+  color: #374151 !important;
+}
+
+/* UTM Preview section */
+.utm-preview {
+  background: #f9fafb !important;
+  color: #1f2937 !important;
+  border: 2px solid #e5e7eb !important;
+}
+
+/* Copy button states */
+.copy-button {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+.copy-button:hover {
+  background: #2563eb !important;
+}
+
+.copy-button.copied {
+  background: #10b981 !important;
+}
