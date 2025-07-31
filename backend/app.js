@@ -64,7 +64,6 @@ app.use('/api/tracking', require('./api/tracking'));
 app.use('/api/reports', require('./api/reports'));
 app.use('/api/journey', require('./api/journey'));
 app.use('/api/domains', require('./api/domains'));
-app.use('/api/agent', require('./api/agent'));
 
 // Tracking pixel endpoint
 app.get('/t.gif', require('./controllers/tracking').trackPixel);
@@ -94,15 +93,6 @@ app.get('/utm-builder', (req, res) => {
 
 app.get('/domains', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/views/domains.html'));
-});
-
-// Luxury routes
-app.get('/luxury-index', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/views/luxury-index.html'));
-});
-
-app.get('/luxury-dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/views/luxury-dashboard.html'));
 });
 
 app.get('/campaigns', (req, res) => res.redirect('/dashboard'));
