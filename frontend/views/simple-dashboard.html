@@ -31,20 +31,22 @@
       display: flex;
       align-items: center;
       gap: 20px;
+      flex-wrap: wrap;
     }
     
-    .domain-filter {
+    .filter-group {
       display: flex;
       align-items: center;
       gap: 10px;
     }
     
-    .domain-filter label {
+    .filter-group label {
       font-weight: 600;
       color: #374151;
     }
     
-    .domain-filter select {
+    .filter-group select,
+    .filter-group input[type="date"] {
       padding: 8px 12px;
       border: 2px solid #d1d5db;
       border-radius: 6px;
@@ -53,9 +55,16 @@
       min-width: 200px;
     }
     
+    .date-filter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
     .filter-info {
       color: #6b7280;
       font-size: 14px;
+      width: 100%;
     }
     
     /* Success message for tracking */
@@ -124,14 +133,40 @@
 
   <!-- Main Content -->
   <div class="container mt-6">
-    <!-- Domain Filter -->
+    <!-- Filters -->
     <div class="filter-section">
-      <div class="domain-filter">
+      <div class="filter-group">
         <label for="domainSelect">Domain:</label>
-        <select id="domainSelect" onchange="handleDomainChange()">
+        <select id="domainSelect" onchange="handleFilterChange()">
           <option value="">All Domains</option>
         </select>
       </div>
+      
+      <div class="filter-group">
+        <label for="quickDate">Periode:</label>
+        <select id="quickDate" onchange="handleQuickDateChange()">
+          <option value="custom">Aangepast</option>
+          <option value="today">Vandaag</option>
+          <option value="yesterday">Gisteren</option>
+          <option value="7days" selected>Laatste 7 dagen</option>
+          <option value="30days">Laatste 30 dagen</option>
+          <option value="thisMonth">Deze maand</option>
+          <option value="lastMonth">Vorige maand</option>
+        </select>
+      </div>
+      
+      <div class="date-filter">
+        <div class="filter-group">
+          <label for="startDate">Van:</label>
+          <input type="date" id="startDate" onchange="handleFilterChange()">
+        </div>
+        
+        <div class="filter-group">
+          <label for="endDate">Tot:</label>
+          <input type="date" id="endDate" onchange="handleFilterChange()">
+        </div>
+      </div>
+      
       <div class="filter-info" id="filterInfo"></div>
     </div>
 
@@ -238,6 +273,12 @@
         if (currentDomain) {
           params.append('domain', currentDomain);
         }
+        if (currentStartDate) {
+          params.append('startDate', currentStartDate);
+        }
+        if (currentEndDate) {
+          params.append('endDate', currentEndDate);
+        }
         
         const url = `/analytics/dashboard${params.toString() ? '?' + params.toString() : ''}`;
         const data = await api.request(url);
@@ -303,8 +344,10 @@
       });
     }
 
-    // Store current domain filter
+    // Store current filters
     let currentDomain = '';
+    let currentStartDate = '';
+    let currentEndDate = '';
     
     // Load user domains
     async function loadDomains() {
@@ -324,11 +367,45 @@
           }
         });
         
-        // Restore previous selection if exists
+        // Restore previous selections if exist
         const savedDomain = localStorage.getItem('selectedDomain');
+        const savedStartDate = localStorage.getItem('selectedStartDate');
+        const savedEndDate = localStorage.getItem('selectedEndDate');
+        
         if (savedDomain && domains.some(d => d.domain === savedDomain)) {
           select.value = savedDomain;
           currentDomain = savedDomain;
+        }
+        
+        if (savedStartDate) {
+          document.getElementById('startDate').value = savedStartDate;
+          currentStartDate = savedStartDate;
+        }
+        
+        if (savedEndDate) {
+          document.getElementById('endDate').value = savedEndDate;
+          currentEndDate = savedEndDate;
+        }
+        
+        // Set default date range (last 7 days) if no dates are saved
+        if (!savedStartDate && !savedEndDate) {
+          const today = new Date();
+          const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+          
+          document.getElementById('startDate').value = weekAgo.toISOString().split('T')[0];
+          document.getElementById('endDate').value = today.toISOString().split('T')[0];
+          
+          currentStartDate = weekAgo.toISOString().split('T')[0];
+          currentEndDate = today.toISOString().split('T')[0];
+          
+          localStorage.setItem('selectedStartDate', currentStartDate);
+          localStorage.setItem('selectedEndDate', currentEndDate);
+          
+          // Set quick date selector to 7 days
+          document.getElementById('quickDate').value = '7days';
+        } else {
+          // Set quick date selector to custom when dates are loaded from storage
+          document.getElementById('quickDate').value = 'custom';
         }
         
         updateFilterInfo();
@@ -337,11 +414,94 @@
       }
     }
     
-    // Handle domain filter change
-    function handleDomainChange() {
-      const select = document.getElementById('domainSelect');
-      currentDomain = select.value;
+    // Handle filter changes
+    function handleFilterChange() {
+      const domainSelect = document.getElementById('domainSelect');
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      
+      currentDomain = domainSelect.value;
+      currentStartDate = startDateInput.value;
+      currentEndDate = endDateInput.value;
+      
+      // Save filters to localStorage
       localStorage.setItem('selectedDomain', currentDomain);
+      localStorage.setItem('selectedStartDate', currentStartDate);
+      localStorage.setItem('selectedEndDate', currentEndDate);
+      
+      // Update quick date selector to custom when dates are manually changed
+      document.getElementById('quickDate').value = 'custom';
+      
+      updateFilterInfo();
+      loadDashboard();
+    }
+    
+    // Handle quick date selection
+    function handleQuickDateChange() {
+      const quickDateSelect = document.getElementById('quickDate');
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      
+      const today = new Date();
+      let startDate, endDate;
+      
+      switch (quickDateSelect.value) {
+        case 'today':
+          startDate = today;
+          endDate = today;
+          break;
+          
+        case 'yesterday':
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+          startDate = yesterday;
+          endDate = yesterday;
+          break;
+          
+        case '7days':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 7);
+          endDate = today;
+          break;
+          
+        case '30days':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 30);
+          endDate = today;
+          break;
+          
+        case 'thisMonth':
+          startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+          endDate = today;
+          break;
+          
+        case 'lastMonth':
+          const lastMonth = new Date(today);
+          lastMonth.setMonth(today.getMonth() - 1);
+          startDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
+          endDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+          break;
+          
+        case 'custom':
+          // Do nothing, let user select custom dates
+          return;
+          
+        default:
+          return;
+      }
+      
+      // Update date inputs
+      startDateInput.value = startDate.toISOString().split('T')[0];
+      endDateInput.value = endDate.toISOString().split('T')[0];
+      
+      // Update current values
+      currentStartDate = startDateInput.value;
+      currentEndDate = endDateInput.value;
+      
+      // Save to localStorage
+      localStorage.setItem('selectedStartDate', currentStartDate);
+      localStorage.setItem('selectedEndDate', currentEndDate);
+      
       updateFilterInfo();
       loadDashboard();
     }
@@ -349,11 +509,37 @@
     // Update filter info text
     function updateFilterInfo() {
       const info = document.getElementById('filterInfo');
+      let infoText = [];
+      
       if (currentDomain) {
-        info.textContent = `Showing data for: ${currentDomain}`;
+        infoText.push(`Domain: ${currentDomain}`);
       } else {
-        info.textContent = 'Showing data for all your domains';
+        infoText.push('Alle domeinen');
       }
+      
+      if (currentStartDate || currentEndDate) {
+        let dateRange = 'Periode: ';
+        if (currentStartDate && currentEndDate) {
+          dateRange += `${formatDateDisplay(currentStartDate)} - ${formatDateDisplay(currentEndDate)}`;
+        } else if (currentStartDate) {
+          dateRange += `vanaf ${formatDateDisplay(currentStartDate)}`;
+        } else if (currentEndDate) {
+          dateRange += `tot ${formatDateDisplay(currentEndDate)}`;
+        }
+        infoText.push(dateRange);
+      }
+      
+      info.textContent = infoText.join(' | ');
+    }
+    
+    // Format date for display
+    function formatDateDisplay(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('nl-NL', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
     }
     
     // Load data on page load
