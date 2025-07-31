@@ -3,83 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UTM Tracking Platform - Login</title>
+  <title>Neural Tracking - AI-Powered Analytics Platform</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='50%' x='50%' text-anchor='middle' font-size='80'>⚡</text></svg>">
 </head>
 <body>
-  <div class="container" style="max-width: 400px; margin-top: 5rem;">
-    <div class="card">
-      <div class="text-center mb-6">
-        <h1 class="logo" style="font-size: 2rem;">UTM Tracker</h1>
-        <p class="text-secondary">Track, analyze, and optimize your marketing campaigns</p>
-      </div>
+  <div class="neural-container">
+    <div class="login-wrapper">
+      <div class="login-card fade-in">
+        <div class="login-header">
+          <div class="logo-animation">
+            <div class="neural-network"></div>
+            <h1 class="logo">Neural Tracking</h1>
+          </div>
+          <p class="tagline">AI-Powered Analytics Intelligence</p>
+        </div>
 
-      <!-- Login Form -->
-      <form id="loginForm">
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form">
         <div class="form-group">
-          <label class="form-label" for="email">Email</label>
-          <input type="email" id="email" class="form-input" required placeholder="you@example.com">
+          <input type="email" id="email" class="form-input" required placeholder=" ">
+          <label class="form-label" for="email">Email Address</label>
         </div>
 
         <div class="form-group">
+          <input type="password" id="password" class="form-input" required placeholder=" ">
           <label class="form-label" for="password">Password</label>
-          <input type="password" id="password" class="form-input" required placeholder="••••••••">
         </div>
 
         <div class="alert alert-error hidden" id="errorAlert"></div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">
-          <span id="btnText">Sign In</span>
+        <button type="submit" class="btn btn-primary btn-full">
+          <span id="btnText">Launch Dashboard</span>
           <span class="spinner hidden" id="btnSpinner"></span>
         </button>
 
-        <div class="text-center mt-4">
-          <a href="#" id="showRegister" style="color: var(--primary-color); text-decoration: none;">
-            Don't have an account? Sign up
+        <div class="auth-divider">
+          <span>or</span>
+        </div>
+
+        <div class="text-center">
+          <a href="#" id="showRegister" class="auth-link">
+            Create new account
           </a>
         </div>
       </form>
 
       <!-- Register Form (Hidden by default) -->
-      <form id="registerForm" class="hidden">
+      <form id="registerForm" class="auth-form hidden">
         <div class="form-group">
+          <input type="text" id="regName" class="form-input" required placeholder=" ">
           <label class="form-label" for="regName">Full Name</label>
-          <input type="text" id="regName" class="form-input" required placeholder="John Doe">
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="regEmail">Email</label>
-          <input type="email" id="regEmail" class="form-input" required placeholder="you@example.com">
+          <input type="email" id="regEmail" class="form-input" required placeholder=" ">
+          <label class="form-label" for="regEmail">Email Address</label>
         </div>
 
         <div class="form-group">
+          <input type="password" id="regPassword" class="form-input" required placeholder=" ">
           <label class="form-label" for="regPassword">Password</label>
-          <input type="password" id="regPassword" class="form-input" required placeholder="••••••••">
           <p class="form-hint">Minimum 6 characters</p>
         </div>
 
         <div class="form-group">
+          <input type="text" id="regOrganization" class="form-input" placeholder=" ">
           <label class="form-label" for="regOrganization">Organization (Optional)</label>
-          <input type="text" id="regOrganization" class="form-input" placeholder="Your Company">
         </div>
 
         <div class="alert alert-error hidden" id="regErrorAlert"></div>
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">
+        <button type="submit" class="btn btn-primary btn-full">
           <span id="regBtnText">Create Account</span>
           <span class="spinner hidden" id="regBtnSpinner"></span>
         </button>
 
-        <div class="text-center mt-4">
-          <a href="#" id="showLogin" style="color: var(--primary-color); text-decoration: none;">
-            Already have an account? Sign in
+        <div class="auth-divider">
+          <span>or</span>
+        </div>
+
+        <div class="text-center">
+          <a href="#" id="showLogin" class="auth-link">
+            Sign in to existing account
           </a>
         </div>
       </form>
+      </div>
     </div>
   </div>
 
   <script src="/js/api.js"></script>
+  <script src="/js/animations.js"></script>
   <script>
     // Toggle between login and register forms
     document.getElementById('showRegister').addEventListener('click', (e) => {
