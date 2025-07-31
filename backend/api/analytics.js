@@ -15,8 +15,18 @@ router.get('/overview', authMiddleware, async (req, res) => {
     // Date range filter
     if (startDate || endDate) {
       query.startTime = {};
-      if (startDate) query.startTime.$gte = new Date(startDate);
-      if (endDate) query.startTime.$lte = new Date(endDate);
+      if (startDate) {
+        const start = new Date(startDate);
+        // Ensure we start from beginning of day in local time
+        start.setHours(0, 0, 0, 0);
+        query.startTime.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        // Ensure we include the entire end day
+        end.setHours(23, 59, 59, 999);
+        query.startTime.$lte = end;
+      }
     } else {
       // Default to last 30 days
       query.startTime = { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) };
@@ -80,8 +90,16 @@ router.get('/sources', authMiddleware, async (req, res) => {
     
     if (startDate || endDate) {
       query.startTime = {};
-      if (startDate) query.startTime.$gte = new Date(startDate);
-      if (endDate) query.startTime.$lte = new Date(endDate);
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        query.startTime.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        query.startTime.$lte = end;
+      }
     } else {
       query.startTime = { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) };
     }
@@ -161,8 +179,16 @@ router.get('/pages', authMiddleware, async (req, res) => {
     
     if (startDate || endDate) {
       query.startTime = {};
-      if (startDate) query.startTime.$gte = new Date(startDate);
-      if (endDate) query.startTime.$lte = new Date(endDate);
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        query.startTime.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        query.startTime.$lte = end;
+      }
     } else {
       query.startTime = { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) };
     }
@@ -309,8 +335,18 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
     // Date range filter
     if (startDate || endDate) {
       query.startTime = {};
-      if (startDate) query.startTime.$gte = new Date(startDate);
-      if (endDate) query.startTime.$lte = new Date(endDate);
+      if (startDate) {
+        const start = new Date(startDate);
+        // Ensure we start from beginning of day in local time
+        start.setHours(0, 0, 0, 0);
+        query.startTime.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        // Ensure we include the entire end day
+        end.setHours(23, 59, 59, 999);
+        query.startTime.$lte = end;
+      }
     }
 
     // Get aggregate data

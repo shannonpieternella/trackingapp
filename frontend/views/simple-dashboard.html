@@ -274,9 +274,11 @@
           params.append('domain', currentDomain);
         }
         if (currentStartDate) {
+          // Send date as-is, backend will handle timezone
           params.append('startDate', currentStartDate);
         }
         if (currentEndDate) {
+          // Send date as-is, backend will handle timezone
           params.append('endDate', currentEndDate);
         }
         
