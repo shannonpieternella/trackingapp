@@ -202,20 +202,21 @@ class JarvisAI {
       // Get current dashboard data based on filters
       const params = {
         ...this.context.filters,
+        domain: this.context.filters.domain || document.getElementById('domainFilter')?.value || window.location.hostname,
         startDate: this.context.filters.startDate || this.getDefaultStartDate(),
         endDate: this.context.filters.endDate || new Date().toISOString()
       };
 
       // Fetch relevant data
-      const [analytics, campaigns, sources] = await Promise.all([
-        api.getAnalytics(params),
-        api.getCampaigns({ ...params, limit: 10 }),
-        api.getTrafficSources({ ...params, limit: 10 })
+      const [analytics, sessions, sources] = await Promise.all([
+        api.getDashboard(params),
+        api.getSessions({ ...params, limit: 10 }),
+        api.getPageAnalytics({ ...params, limit: 10 })
       ]);
 
       context.analytics = analytics;
-      context.campaigns = campaigns;
-      context.trafficSources = sources;
+      context.sessions = sessions;
+      context.pages = sources;
 
       // Get user journey data if requested
       if (this.context.currentView === 'journey') {
@@ -247,11 +248,11 @@ class JarvisAI {
         // Handle function calls for rich content
         return this.handleFunctionCall(
           response.function_call,
-          response.response
+          response.response || 'Let me analyze that data for you...'
         );
       }
 
-      return response.response;
+      return response.response || 'I understand your request. Let me help you with that.';
     } catch (error) {
       console.error('AI API Error:', error);
       if (error.message.includes('not configured')) {
@@ -271,9 +272,47 @@ class JarvisAI {
       content += this.renderDataCard(params);
     } else if (name === 'show_chart') {
       content += this.renderChart(params);
+    } else if (name === 'analyze_data') {
+      // Handle data analysis request
+      content = this.generateAnalysisResponse(params);
+    } else if (name === 'generate_report') {
+      // Handle report generation
+      content = this.generateReportResponse(params);
     }
 
     return content;
+  }
+
+  generateAnalysisResponse(params) {
+    const { analysis_type, metrics } = params;
+    
+    let response = `📊 **Data Analysis: ${analysis_type}**\n\n`;
+    response += `I'm analyzing the following metrics: ${metrics.join(', ')}.\n\n`;
+    
+    // Add some context based on the current data
+    if (this.context.analytics) {
+      const { totalVisits, conversionRate, bounceRate } = this.context.analytics;
+      response += `Based on your current data:\n`;
+      response += `• Total visits: ${totalVisits || 0}\n`;
+      response += `• Conversion rate: ${conversionRate || 0}%\n`;
+      response += `• Bounce rate: ${bounceRate || 0}%\n\n`;
+    }
+    
+    response += `💡 *Tip*: Try asking specific questions about your data, like "What's my best performing campaign?" or "Show me traffic trends for this week".`;
+    
+    return response;
+  }
+
+  generateReportResponse(params) {
+    const { report_type, period, metrics } = params;
+    
+    let response = `📈 **${report_type} Report**\n\n`;
+    response += `Period: ${period || 'Current'}\n`;
+    response += `Metrics: ${metrics ? metrics.join(', ') : 'All metrics'}\n\n`;
+    response += `I'm preparing your report. For now, you can view detailed analytics in the dashboard.\n\n`;
+    response += `Would you like me to focus on any specific aspect of your data?`;
+    
+    return response;
   }
 
   renderDataCard(params) {
@@ -371,6 +410,12 @@ class JarvisAI {
       minute: '2-digit'
     });
 
+    // Convert markdown to HTML for AI messages
+    let content = message.content;
+    if (message.sender === 'ai') {
+      content = this.parseMarkdown(content);
+    }
+
     messageEl.innerHTML = `
       <div class="jarvis-message-avatar">
         ${message.sender === 'user' ? 'U' : '🤖'}
@@ -381,12 +426,24 @@ class JarvisAI {
             📅 ${this.formatDateRange(this.context.filters.startDate, this.context.filters.endDate)}
           </div>
         ` : ''}
-        ${message.content}
+        ${content}
         <div class="jarvis-message-time">${time}</div>
       </div>
     `;
 
     messagesContainer.appendChild(messageEl);
+  }
+
+  parseMarkdown(text) {
+    // Simple markdown parser
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') // Bold
+      .replace(/\*(.+?)\*/g, '<em>$1</em>') // Italic
+      .replace(/\n\n/g, '</p><p>') // Paragraphs
+      .replace(/\n/g, '<br>') // Line breaks
+      .replace(/^/, '<p>') // Start paragraph
+      .replace(/$/, '</p>') // End paragraph
+      .replace(/• /g, '• '); // Keep bullet points
   }
 
   showTyping() {
