@@ -202,6 +202,9 @@ class JarvisAI {
   }
 
   async gatherDataContext() {
+    // First update the context
+    this.updateContext();
+    
     const context = {
       currentFilters: this.context.filters,
       currentView: this.context.currentView,
@@ -257,6 +260,13 @@ class JarvisAI {
       }
 
       console.log('Context gathered:', context);
+      
+      // Store the gathered data in the instance context
+      this.context.analytics = context.analytics;
+      this.context.trafficSources = context.trafficSources;
+      this.context.sessions = context.sessions;
+      this.context.topPages = context.topPages;
+      this.context.pagesBySource = context.pagesBySource;
 
     } catch (error) {
       console.error('Error gathering context:', error);
@@ -318,7 +328,13 @@ class JarvisAI {
 
   handleFunctionCall(functionCall, textContent) {
     const { name, arguments: args } = functionCall;
-    const params = JSON.parse(args);
+    let params = {};
+    
+    try {
+      params = JSON.parse(args || '{}');
+    } catch (e) {
+      console.error('Error parsing function arguments:', e);
+    }
 
     let content = textContent || '';
 
@@ -338,33 +354,132 @@ class JarvisAI {
   }
 
   generateAnalysisResponse(params) {
-    const { analysis_type, metrics } = params;
+    const { analysis_type, metrics = [] } = params;
     
     let response = `📊 **Data Analysis: ${analysis_type}**\n\n`;
-    response += `I'm analyzing the following metrics: ${metrics.join(', ')}.\n\n`;
     
-    // Add some context based on the current data
-    if (this.context.analytics) {
-      const { totalVisits, conversionRate, bounceRate } = this.context.analytics;
-      response += `Based on your current data:\n`;
-      response += `• Total visits: ${totalVisits || 0}\n`;
-      response += `• Conversion rate: ${conversionRate || 0}%\n`;
-      response += `• Bounce rate: ${bounceRate || 0}%\n\n`;
+    // Get the current context data
+    const context = this.context;
+    const analytics = context.analytics || {};
+    
+    if (analysis_type === 'anomalies') {
+      response += `I've analyzed your data for anomalies:\n\n`;
+      
+      if (analytics.totalSessions === 0) {
+        response += `⚠️ **No data found**: There are no sessions recorded for the selected period.\n`;
+        response += `This could mean:\n`;
+        response += `• Tracking code might not be installed correctly\n`;
+        response += `• No visitors during this time period\n`;
+        response += `• Date filter might be too restrictive\n\n`;
+        response += `Try selecting a wider date range or check your tracking setup.`;
+      } else {
+        response += `Based on your current data:\n`;
+        response += `• **Total Sessions**: ${analytics.totalSessions || 0}\n`;
+        response += `• **Unique Visitors**: ${analytics.uniqueVisitors || 0}\n`;
+        response += `• **Bounce Rate**: ${analytics.bounceRate || 0}%\n\n`;
+        
+        if (analytics.bounceRate > 70) {
+          response += `⚠️ **High bounce rate detected** (${analytics.bounceRate}%)\n`;
+        }
+        if (analytics.avgDuration < 30) {
+          response += `⚠️ **Low engagement time** (${analytics.avgDuration}s average)\n`;
+        }
+      }
+    } else if (analysis_type === 'trends') {
+      response += `📈 **Traffic Trend Analysis**\n\n`;
+      response += `Current period performance:\n`;
+      response += `• **Sessions**: ${analytics.totalSessions || 0}\n`;
+      response += `• **Page Views**: ${analytics.pageViews || 0}\n`;
+      response += `• **Avg Duration**: ${analytics.avgDuration || 0} seconds\n\n`;
+      
+      if (context.trafficSources && context.trafficSources.length > 0) {
+        response += `**Top Traffic Sources**:\n`;
+        context.trafficSources.slice(0, 3).forEach(source => {
+          response += `• ${source.source}/${source.medium}: ${source.sessions} sessions\n`;
+        });
+      }
+    } else if (analysis_type === 'predictions') {
+      response += `🔮 **Traffic Predictions**\n\n`;
+      response += `Based on current data:\n`;
+      response += `• **Current weekly average**: ${Math.round((analytics.totalSessions || 0) / 7)} sessions/day\n`;
+      response += `• **Projected next week**: ${Math.round((analytics.totalSessions || 0) * 1.1)} sessions\n\n`;
+      response += `*Note: Predictions are estimates based on current trends.*`;
+    } else {
+      // Default analysis
+      response += `Analyzing ${metrics.length > 0 ? metrics.join(', ') : 'all available metrics'}...\n\n`;
+      response += `**Current Performance**:\n`;
+      response += `• Sessions: ${analytics.totalSessions || 0}\n`;
+      response += `• Visitors: ${analytics.uniqueVisitors || 0}\n`;
+      response += `• Page Views: ${analytics.pageViews || 0}\n`;
+      response += `• Avg Duration: ${analytics.avgDuration || 0}s\n`;
     }
     
-    response += `💡 *Tip*: Try asking specific questions about your data, like "What's my best performing campaign?" or "Show me traffic trends for this week".`;
+    if (context.topPages && context.topPages.length > 0) {
+      response += `\n**Top Pages**:\n`;
+      context.topPages.slice(0, 3).forEach(page => {
+        response += `• ${page._id || '/'}: ${page.totalVisits} visits\n`;
+      });
+    }
     
     return response;
   }
 
   generateReportResponse(params) {
-    const { report_type, period, metrics } = params;
+    const { report_type, period, metrics = [] } = params;
+    const context = this.context;
+    const analytics = context.analytics || {};
     
-    let response = `📈 **${report_type} Report**\n\n`;
-    response += `Period: ${period || 'Current'}\n`;
-    response += `Metrics: ${metrics ? metrics.join(', ') : 'All metrics'}\n\n`;
-    response += `I'm preparing your report. For now, you can view detailed analytics in the dashboard.\n\n`;
-    response += `Would you like me to focus on any specific aspect of your data?`;
+    let response = `📈 **${report_type || 'Analytics'} Report**\n\n`;
+    response += `📅 Period: ${this.formatDateRange(
+      context.filters.startDate || this.getDefaultStartDate(),
+      context.filters.endDate || new Date().toISOString().split('T')[0]
+    )}\n\n`;
+    
+    if (report_type === 'summary') {
+      response += `**Executive Summary**\n\n`;
+      response += `📊 **Key Metrics**:\n`;
+      response += `• Total Sessions: ${analytics.totalSessions || 0}\n`;
+      response += `• Unique Visitors: ${analytics.uniqueVisitors || 0}\n`;
+      response += `• Page Views: ${analytics.pageViews || 0}\n`;
+      response += `• Avg Session Duration: ${analytics.avgDuration || 0}s\n`;
+      response += `• Bounce Rate: ${analytics.bounceRate || 0}%\n\n`;
+      
+      if (context.trafficSources && context.trafficSources.length > 0) {
+        response += `**Traffic Distribution**:\n`;
+        const totalSessions = context.trafficSources.reduce((sum, s) => sum + s.sessions, 0);
+        context.trafficSources.slice(0, 5).forEach(source => {
+          const percentage = totalSessions > 0 ? ((source.sessions / totalSessions) * 100).toFixed(1) : 0;
+          response += `• ${source.source}/${source.medium}: ${source.sessions} sessions (${percentage}%)\n`;
+        });
+      }
+    } else if (report_type === 'detailed') {
+      response += `**Detailed Analytics Report**\n\n`;
+      response += `🎯 **Performance Metrics**:\n`;
+      response += `• Sessions: ${analytics.totalSessions || 0}\n`;
+      response += `• Users: ${analytics.uniqueVisitors || 0}\n`;
+      response += `• Pages/Session: ${analytics.totalSessions > 0 ? (analytics.pageViews / analytics.totalSessions).toFixed(2) : 0}\n`;
+      response += `• Engagement Rate: ${analytics.bounceRate ? (100 - analytics.bounceRate).toFixed(1) : 0}%\n\n`;
+      
+      if (context.sessions && context.sessions.length > 0) {
+        response += `**Recent Activity** (Last ${context.sessions.length} sessions):\n`;
+        response += `• Most recent: ${new Date(context.sessions[0].startTime).toLocaleString()}\n`;
+        response += `• Average pages viewed: ${(context.sessions.reduce((sum, s) => sum + s.pageViews, 0) / context.sessions.length).toFixed(1)}\n`;
+      }
+    } else {
+      // Default report
+      response += `**Analytics Overview**\n\n`;
+      response += `During the selected period:\n`;
+      response += `• You had ${analytics.totalSessions || 0} sessions from ${analytics.uniqueVisitors || 0} unique visitors\n`;
+      response += `• They viewed ${analytics.pageViews || 0} pages in total\n`;
+      response += `• Average time spent: ${analytics.avgDuration || 0} seconds per session\n\n`;
+      
+      if (analytics.totalSessions === 0) {
+        response += `💡 **No data available** for this period. Try:\n`;
+        response += `• Selecting a different date range\n`;
+        response += `• Checking if tracking is properly installed\n`;
+        response += `• Verifying the domain filter\n`;
+      }
+    }
     
     return response;
   }
