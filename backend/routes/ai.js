@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../middleware/auth');
+const { authMiddleware: requireAuth } = require('../middleware/auth');
 const { rateLimiter } = require('../middleware/rateLimiter');
 const axios = require('axios');
 
