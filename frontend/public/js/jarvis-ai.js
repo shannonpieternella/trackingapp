@@ -1,7 +1,6 @@
 // Jarvis AI Assistant for UTM Tracking Platform
 class JarvisAI {
-  constructor(apiKey) {
-    this.apiKey = apiKey;
+  constructor() {
     this.messages = [];
     this.context = {
       filters: {},
@@ -10,15 +9,19 @@ class JarvisAI {
     };
     this.isOpen = false;
     this.isTyping = false;
+    this.isConfigured = false;
     this.init();
   }
 
-  init() {
+  async init() {
     this.createUI();
     this.bindEvents();
     this.loadChatHistory();
     this.updateContext();
-    this.showWelcomeMessage();
+    await this.checkConfiguration();
+    if (this.isConfigured) {
+      this.showWelcomeMessage();
+    }
   }
 
   createUI() {
@@ -227,86 +230,35 @@ class JarvisAI {
   }
 
   async callOpenAI(message, context) {
-    const systemPrompt = `You are Jarvis, an AI assistant for a UTM tracking analytics platform. 
-    You have access to real-time data about website traffic, campaigns, conversions, and user behavior.
-    
-    Current context:
-    - View: ${context.currentView}
-    - Filters: ${JSON.stringify(context.currentFilters)}
-    - Analytics data: ${JSON.stringify(context.analytics)}
-    
-    Provide insightful, actionable responses. Use emojis appropriately. Format numbers nicely.
-    When showing data, use the data card format. Be concise but helpful.`;
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4-turbo-preview',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...this.messages.map(m => ({
+    try {
+      const response = await api.request('/ai/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          message,
+          context,
+          conversationHistory: this.messages.slice(-10).map(m => ({
             role: m.sender === 'user' ? 'user' : 'assistant',
             content: m.content
-          })),
-          { role: 'user', content: message }
-        ],
-        functions: [
-          {
-            name: 'show_data_card',
-            description: 'Display data in a formatted card',
-            parameters: {
-              type: 'object',
-              properties: {
-                title: { type: 'string' },
-                metrics: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      label: { type: 'string' },
-                      value: { type: 'string' },
-                      change: { type: 'number' },
-                      changeType: { type: 'string', enum: ['positive', 'negative', 'neutral'] }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          {
-            name: 'show_chart',
-            description: 'Display a chart visualization',
-            parameters: {
-              type: 'object',
-              properties: {
-                type: { type: 'string', enum: ['line', 'bar', 'pie', 'donut'] },
-                data: { type: 'object' },
-                title: { type: 'string' }
-              }
-            }
-          }
-        ],
-        function_call: 'auto',
-        temperature: 0.7,
-        max_tokens: 1000
-      })
-    });
+          }))
+        })
+      });
 
-    const data = await response.json();
-    
-    if (data.choices[0].message.function_call) {
-      // Handle function calls for rich content
-      return this.handleFunctionCall(
-        data.choices[0].message.function_call,
-        data.choices[0].message.content
-      );
+      if (response.function_call) {
+        // Handle function calls for rich content
+        return this.handleFunctionCall(
+          response.function_call,
+          response.response
+        );
+      }
+
+      return response.response;
+    } catch (error) {
+      console.error('AI API Error:', error);
+      if (error.message.includes('not configured')) {
+        return '❌ AI service is not configured. Please contact your administrator to set up the OpenAI API key.';
+      }
+      throw error;
     }
-
-    return data.choices[0].message.content;
   }
 
   handleFunctionCall(functionCall, textContent) {
@@ -388,6 +340,25 @@ class JarvisAI {
     this.renderMessage(message);
     this.saveChatHistory();
     this.scrollToBottom();
+  }
+
+  async checkConfiguration() {
+    try {
+      const config = await api.request('/ai/config');
+      this.isConfigured = config.enabled;
+      
+      if (!this.isConfigured) {
+        // Show configuration notice
+        const bubble = document.getElementById('jarvisBubble');
+        if (bubble) {
+          bubble.style.opacity = '0.5';
+          bubble.title = 'AI Assistant not configured';
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check AI configuration:', error);
+      this.isConfigured = false;
+    }
   }
 
   renderMessage(message) {
@@ -561,13 +532,6 @@ What would you like to know about your data?`;
 
 // Initialize Jarvis when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  // Check if API key is available
-  const apiKey = localStorage.getItem('openai_api_key');
-  if (!apiKey) {
-    console.warn('OpenAI API key not found. Please set it in settings.');
-    return;
-  }
-
-  // Initialize Jarvis AI
-  window.jarvis = new JarvisAI(apiKey);
+  // Initialize Jarvis AI - API key is now handled server-side
+  window.jarvis = new JarvisAI();
 });

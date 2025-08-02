@@ -64,6 +64,7 @@ app.use('/api/tracking', require('./api/tracking'));
 app.use('/api/reports', require('./api/reports'));
 app.use('/api/journey', require('./api/journey'));
 app.use('/api/domains', require('./api/domains'));
+app.use('/api/ai', require('./routes/ai'));
 
 // Tracking pixel endpoint
 app.get('/t.gif', require('./controllers/tracking').trackPixel);
