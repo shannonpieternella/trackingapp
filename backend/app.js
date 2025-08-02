@@ -15,6 +15,11 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
+// Trust proxy in production for rate limiting
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // CORS configuration - Allow all domains to track
 app.use(cors({
   origin: '*',
