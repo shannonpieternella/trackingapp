@@ -1,0 +1,584 @@
+/* Jarvis AI Chat System Styles */
+
+:root {
+  --ai-primary: #6366f1;
+  --ai-primary-dark: #4f46e5;
+  --ai-secondary: #818cf8;
+  --ai-bg: #f9fafb;
+  --ai-surface: #ffffff;
+  --ai-text: #111827;
+  --ai-text-secondary: #6b7280;
+  --ai-border: #e5e7eb;
+  --ai-success: #10b981;
+  --ai-warning: #f59e0b;
+  --ai-error: #ef4444;
+  --ai-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Chat Bubble */
+.jarvis-bubble {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--ai-primary) 0%, var(--ai-secondary) 100%);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--ai-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jarvis-bubble:hover {
+  transform: scale(1.1);
+  box-shadow: 0 25px 30px -5px rgb(99 102 241 / 0.3);
+}
+
+.jarvis-bubble.active {
+  transform: scale(0.95);
+}
+
+.jarvis-bubble-icon {
+  width: 32px;
+  height: 32px;
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+.jarvis-bubble.active .jarvis-bubble-icon {
+  transform: rotate(45deg);
+}
+
+.jarvis-bubble-pulse {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background: var(--ai-success);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Chat Container */
+.jarvis-container {
+  position: fixed;
+  bottom: 100px;
+  right: 24px;
+  width: 400px;
+  height: 600px;
+  background: var(--ai-surface);
+  border-radius: 16px;
+  box-shadow: var(--ai-shadow);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 9998;
+}
+
+.jarvis-container.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+/* Chat Header */
+.jarvis-header {
+  padding: 20px;
+  background: linear-gradient(135deg, var(--ai-primary) 0%, var(--ai-secondary) 100%);
+  color: white;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.jarvis-header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.jarvis-avatar {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.jarvis-header-text h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.jarvis-header-text p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.jarvis-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.jarvis-header-btn {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.jarvis-header-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Chat Messages */
+.jarvis-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+
+.jarvis-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.jarvis-messages::-webkit-scrollbar-track {
+  background: var(--ai-bg);
+}
+
+.jarvis-messages::-webkit-scrollbar-thumb {
+  background: var(--ai-border);
+  border-radius: 3px;
+}
+
+.jarvis-message {
+  display: flex;
+  gap: 12px;
+  animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.jarvis-message.user {
+  flex-direction: row-reverse;
+}
+
+.jarvis-message-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--ai-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.jarvis-message.user .jarvis-message-avatar {
+  background: var(--ai-text-secondary);
+}
+
+.jarvis-message-content {
+  max-width: 80%;
+  background: var(--ai-bg);
+  padding: 12px 16px;
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  color: var(--ai-text);
+}
+
+.jarvis-message.user .jarvis-message-content {
+  background: var(--ai-primary);
+  color: white;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 4px;
+}
+
+.jarvis-message-time {
+  font-size: 11px;
+  color: var(--ai-text-secondary);
+  margin-top: 4px;
+}
+
+/* Typing Indicator */
+.jarvis-typing {
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+}
+
+.jarvis-typing-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--ai-text-secondary);
+  border-radius: 50%;
+  animation: typing 1.4s infinite;
+}
+
+.jarvis-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.jarvis-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+/* Chat Input */
+.jarvis-input-container {
+  padding: 20px;
+  border-top: 1px solid var(--ai-border);
+  background: var(--ai-surface);
+  border-radius: 0 0 16px 16px;
+}
+
+.jarvis-input-wrapper {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.jarvis-input-field {
+  flex: 1;
+  background: var(--ai-bg);
+  border: 1px solid var(--ai-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  resize: none;
+  outline: none;
+  transition: all 0.2s;
+  max-height: 120px;
+}
+
+.jarvis-input-field:focus {
+  border-color: var(--ai-primary);
+  background: white;
+}
+
+.jarvis-input-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.jarvis-input-btn {
+  width: 40px;
+  height: 40px;
+  background: var(--ai-primary);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.jarvis-input-btn:hover {
+  background: var(--ai-primary-dark);
+}
+
+.jarvis-input-btn:disabled {
+  background: var(--ai-border);
+  cursor: not-allowed;
+}
+
+/* Quick Actions */
+.jarvis-quick-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.jarvis-quick-actions::-webkit-scrollbar {
+  display: none;
+}
+
+.jarvis-quick-action {
+  background: var(--ai-bg);
+  border: 1px solid var(--ai-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--ai-text);
+}
+
+.jarvis-quick-action:hover {
+  background: var(--ai-primary);
+  color: white;
+  border-color: var(--ai-primary);
+}
+
+/* Data Cards in Messages */
+.jarvis-data-card {
+  background: white;
+  border: 1px solid var(--ai-border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.jarvis-data-card-title {
+  font-weight: 600;
+  color: var(--ai-text);
+  margin-bottom: 12px;
+}
+
+.jarvis-data-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ai-bg);
+}
+
+.jarvis-data-metric:last-child {
+  border-bottom: none;
+}
+
+.jarvis-data-label {
+  color: var(--ai-text-secondary);
+  font-size: 14px;
+}
+
+.jarvis-data-value {
+  font-weight: 600;
+  color: var(--ai-text);
+  font-size: 16px;
+}
+
+.jarvis-data-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.jarvis-data-change.positive {
+  color: var(--ai-success);
+}
+
+.jarvis-data-change.negative {
+  color: var(--ai-error);
+}
+
+/* Charts in Messages */
+.jarvis-chart {
+  margin-top: 12px;
+  height: 200px;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .jarvis-container {
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    top: 0;
+    border-radius: 0;
+    max-width: none;
+  }
+
+  .jarvis-bubble {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .jarvis-header {
+    border-radius: 0;
+  }
+
+  .jarvis-input-container {
+    border-radius: 0;
+  }
+}
+
+/* Loading State */
+.jarvis-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.jarvis-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--ai-border);
+  border-top-color: var(--ai-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State */
+.jarvis-error {
+  background: var(--ai-error);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Voice Input */
+.jarvis-voice-btn {
+  background: var(--ai-bg);
+  color: var(--ai-text-secondary);
+}
+
+.jarvis-voice-btn.recording {
+  background: var(--ai-error);
+  color: white;
+  animation: recordPulse 1.5s infinite;
+}
+
+@keyframes recordPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Context Badge */
+.jarvis-context-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ai-secondary);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+/* Fullscreen Mode */
+.jarvis-container.fullscreen {
+  width: 100%;
+  height: 100%;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  top: 0;
+  border-radius: 0;
+  max-width: none;
+}
+
+.jarvis-fullscreen-content {
+  max-width: 800px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ai-bg: #1f2937;
+    --ai-surface: #111827;
+    --ai-text: #f9fafb;
+    --ai-text-secondary: #9ca3af;
+    --ai-border: #374151;
+  }
+
+  .jarvis-message-content {
+    background: #374151;
+  }
+
+  .jarvis-data-card {
+    background: #1f2937;
+  }
+
+  .jarvis-input-field {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+
+  .jarvis-input-field:focus {
+    background: #111827;
+  }
+}

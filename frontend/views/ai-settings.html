@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Settings - TrackFlow</title>
+  <link rel="stylesheet" href="/css/luxury-style.css">
+  <style>
+    .settings-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .settings-card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      margin-bottom: 24px;
+    }
+
+    .settings-header {
+      margin-bottom: 32px;
+    }
+
+    .settings-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    .settings-description {
+      color: #6b7280;
+      font-size: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-hint {
+      color: #6b7280;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .ai-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+
+    .status-indicator.active {
+      background: #10b981;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .test-section {
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .test-result {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 8px;
+      background: #f9fafb;
+      font-family: monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+
+    .test-result.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .test-result.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <nav class="dashboard-nav">
+      <div class="container">
+        <div class="nav-content">
+          <div class="nav-brand">
+            <a href="/luxury-dashboard" class="nav-logo">TrackFlow</a>
+          </div>
+          
+          <ul class="nav-links">
+            <li><a href="/luxury-dashboard" class="nav-link">Overview</a></li>
+            <li><a href="/luxury-campaigns" class="nav-link">Campaigns</a></li>
+            <li><a href="/luxury-analytics" class="nav-link">Analytics</a></li>
+            <li><a href="/luxury-journey" class="nav-link">Journey</a></li>
+            <li><a href="/ai-settings" class="nav-link active">AI Settings</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="settings-container">
+      <div class="settings-header">
+        <h1 class="settings-title">Jarvis AI Configuration</h1>
+        <p class="settings-description">Configure your AI assistant for intelligent data analysis</p>
+      </div>
+
+      <div class="settings-card">
+        <h2 style="font-size: 20px; margin-bottom: 24px;">OpenAI API Configuration</h2>
+        
+        <div class="ai-status">
+          <div class="status-indicator" id="statusIndicator"></div>
+          <span id="statusText">API Key not configured</span>
+        </div>
+
+        <form id="aiSettingsForm">
+          <div class="form-group">
+            <label class="form-label" for="apiKey">OpenAI API Key</label>
+            <input 
+              type="password" 
+              id="apiKey" 
+              class="form-input" 
+              placeholder="sk-..."
+              autocomplete="off"
+            >
+            <p class="form-hint">
+              Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #6366f1;">OpenAI Dashboard</a>
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="model">AI Model</label>
+            <select id="model" class="form-input">
+              <option value="gpt-4-turbo-preview">GPT-4 Turbo (Recommended)</option>
+              <option value="gpt-4">GPT-4</option>
+              <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Faster, less accurate)</option>
+            </select>
+            <p class="form-hint">GPT-4 provides better analysis but costs more per request</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="temperature">Response Style</label>
+            <select id="temperature" class="form-input">
+              <option value="0.3">Precise & Factual</option>
+              <option value="0.7" selected>Balanced</option>
+              <option value="1.0">Creative & Conversational</option>
+            </select>
+            <p class="form-hint">Controls how creative vs. precise the AI responses are</p>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+            <button type="button" class="btn btn-secondary" id="testConnection">Test Connection</button>
+          </div>
+        </form>
+
+        <div class="test-section">
+          <h3 style="font-size: 18px; margin-bottom: 16px;">Test AI Assistant</h3>
+          <button class="btn btn-primary" id="testAI">Send Test Message</button>
+          <div id="testResult"></div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h2 style="font-size: 20px; margin-bottom: 24px;">AI Behavior Settings</h2>
+        
+        <form id="behaviorForm">
+          <div class="form-group">
+            <label class="form-label">
+              <input type="checkbox" id="autoSuggestions" checked>
+              Enable proactive suggestions
+            </label>
+            <p class="form-hint">AI will suggest insights when anomalies are detected</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <input type="checkbox" id="voiceInput" checked>
+              Enable voice input
+            </label>
+            <p class="form-hint">Allow voice commands in the chat interface</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <input type="checkbox" id="persistHistory" checked>
+              Save chat history
+            </label>
+            <p class="form-hint">Remember previous conversations for context</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="contextWindow">Context Window</label>
+            <select id="contextWindow" class="form-input">
+              <option value="current">Current filter only</option>
+              <option value="session" selected>Current session</option>
+              <option value="all">All available data</option>
+            </select>
+            <p class="form-hint">How much data context the AI should consider</p>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Behavior Settings</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    // Check auth
+    if (!localStorage.getItem('utm_token')) {
+      window.location.href = '/luxury-index';
+    }
+
+    // Load saved settings
+    function loadSettings() {
+      const apiKey = localStorage.getItem('openai_api_key');
+      const model = localStorage.getItem('jarvis_model') || 'gpt-4-turbo-preview';
+      const temperature = localStorage.getItem('jarvis_temperature') || '0.7';
+      
+      if (apiKey) {
+        document.getElementById('apiKey').value = apiKey;
+        updateStatus(true);
+      }
+      
+      document.getElementById('model').value = model;
+      document.getElementById('temperature').value = temperature;
+
+      // Load behavior settings
+      document.getElementById('autoSuggestions').checked = 
+        localStorage.getItem('jarvis_auto_suggestions') !== 'false';
+      document.getElementById('voiceInput').checked = 
+        localStorage.getItem('jarvis_voice_input') !== 'false';
+      document.getElementById('persistHistory').checked = 
+        localStorage.getItem('jarvis_persist_history') !== 'false';
+      document.getElementById('contextWindow').value = 
+        localStorage.getItem('jarvis_context_window') || 'session';
+    }
+
+    // Update status indicator
+    function updateStatus(isActive) {
+      const indicator = document.getElementById('statusIndicator');
+      const text = document.getElementById('statusText');
+      
+      if (isActive) {
+        indicator.classList.add('active');
+        text.textContent = 'API Key configured';
+      } else {
+        indicator.classList.remove('active');
+        text.textContent = 'API Key not configured';
+      }
+    }
+
+    // Save API settings
+    document.getElementById('aiSettingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const apiKey = document.getElementById('apiKey').value;
+      const model = document.getElementById('model').value;
+      const temperature = document.getElementById('temperature').value;
+      
+      if (apiKey) {
+        localStorage.setItem('openai_api_key', apiKey);
+        localStorage.setItem('jarvis_model', model);
+        localStorage.setItem('jarvis_temperature', temperature);
+        updateStatus(true);
+        
+        // Reload Jarvis if it exists
+        if (window.jarvis) {
+          window.jarvis = new JarvisAI(apiKey);
+        }
+        
+        alert('Settings saved successfully!');
+      } else {
+        alert('Please enter an API key');
+      }
+    });
+
+    // Save behavior settings
+    document.getElementById('behaviorForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      localStorage.setItem('jarvis_auto_suggestions', 
+        document.getElementById('autoSuggestions').checked);
+      localStorage.setItem('jarvis_voice_input', 
+        document.getElementById('voiceInput').checked);
+      localStorage.setItem('jarvis_persist_history', 
+        document.getElementById('persistHistory').checked);
+      localStorage.setItem('jarvis_context_window', 
+        document.getElementById('contextWindow').value);
+      
+      alert('Behavior settings saved!');
+    });
+
+    // Test connection
+    document.getElementById('testConnection').addEventListener('click', async () => {
+      const apiKey = document.getElementById('apiKey').value;
+      const resultDiv = document.getElementById('testResult');
+      
+      if (!apiKey) {
+        alert('Please enter an API key first');
+        return;
+      }
+      
+      resultDiv.innerHTML = '<div class="test-result">Testing connection...</div>';
+      
+      try {
+        const response = await fetch('https://api.openai.com/v1/models', {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`
+          }
+        });
+        
+        if (response.ok) {
+          resultDiv.innerHTML = '<div class="test-result success">✓ Connection successful! API key is valid.</div>';
+        } else {
+          throw new Error('Invalid API key');
+        }
+      } catch (error) {
+        resultDiv.innerHTML = '<div class="test-result error">✗ Connection failed. Please check your API key.</div>';
+      }
+    });
+
+    // Test AI
+    document.getElementById('testAI').addEventListener('click', async () => {
+      const apiKey = document.getElementById('apiKey').value;
+      const model = document.getElementById('model').value;
+      const resultDiv = document.getElementById('testResult');
+      
+      if (!apiKey) {
+        alert('Please configure and save your API key first');
+        return;
+      }
+      
+      resultDiv.innerHTML = '<div class="test-result">Sending test message to AI...</div>';
+      
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              {
+                role: 'system',
+                content: 'You are Jarvis, an AI assistant for analytics. Respond with a brief greeting.'
+              },
+              {
+                role: 'user',
+                content: 'Hello Jarvis, are you working?'
+              }
+            ],
+            max_tokens: 100
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          resultDiv.innerHTML = `<div class="test-result success">✓ AI Response: ${data.choices[0].message.content}</div>`;
+        } else {
+          throw new Error(data.error?.message || 'AI test failed');
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="test-result error">✗ Error: ${error.message}</div>`;
+      }
+    });
+
+    // Initialize
+    loadSettings();
+  </script>
+</body>
+</html>
