@@ -186,7 +186,17 @@ class JarvisAI {
 
     } catch (error) {
       this.hideTyping();
-      this.addMessage('ai', '❌ Sorry, I encountered an error. Please try again.');
+      let errorMessage = '❌ Sorry, I encountered an error. ';
+      
+      if (error.message?.includes('not configured')) {
+        errorMessage += 'AI service is not configured. Please contact your administrator to set up the OpenAI API key.';
+      } else if (error.message?.includes('Failed to fetch')) {
+        errorMessage += 'Could not connect to the server. Please check your connection.';
+      } else {
+        errorMessage += 'Please try again or check the console for details.';
+      }
+      
+      this.addMessage('ai', errorMessage);
       console.error('Jarvis AI Error:', error);
     }
   }
@@ -265,6 +275,13 @@ class JarvisAI {
 
   async callOpenAI(message, context) {
     try {
+      console.log('Sending to AI:', { message, contextSummary: {
+        hasAnalytics: !!context.analytics,
+        totalSessions: context.analytics?.totalSessions,
+        trafficSourcesCount: context.trafficSources?.length,
+        filters: context.currentFilters
+      }});
+
       const response = await api.request('/ai/chat', {
         method: 'POST',
         body: JSON.stringify({
@@ -277,6 +294,8 @@ class JarvisAI {
         })
       });
 
+      console.log('AI Response:', response);
+
       if (response.function_call) {
         // Handle function calls for rich content
         return this.handleFunctionCall(
@@ -288,8 +307,10 @@ class JarvisAI {
       return response.response || 'I understand your request. Let me help you with that.';
     } catch (error) {
       console.error('AI API Error:', error);
-      if (error.message.includes('not configured')) {
-        return '❌ AI service is not configured. Please contact your administrator to set up the OpenAI API key.';
+      console.error('Error details:', error.response || error);
+      
+      if (error.message?.includes('not configured')) {
+        throw new Error('AI service not configured');
       }
       throw error;
     }
@@ -454,9 +475,12 @@ class JarvisAI {
         ${message.sender === 'user' ? 'U' : '🤖'}
       </div>
       <div class="jarvis-message-content">
-        ${this.context.filters.startDate && message.sender === 'ai' ? `
+        ${message.sender === 'ai' && (this.context.filters.startDate || this.context.filters.endDate) ? `
           <div class="jarvis-context-badge">
-            📅 ${this.formatDateRange(this.context.filters.startDate, this.context.filters.endDate)}
+            📅 ${this.formatDateRange(
+              this.context.filters.startDate || this.getDefaultStartDate(), 
+              this.context.filters.endDate || new Date().toISOString().split('T')[0]
+            )}
           </div>
         ` : ''}
         ${content}
@@ -626,7 +650,7 @@ What would you like to know about your data?`;
   getDefaultStartDate() {
     const date = new Date();
     date.setDate(date.getDate() - 7);
-    return date.toISOString();
+    return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
   }
 }
 
