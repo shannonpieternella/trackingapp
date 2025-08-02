@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Settings - TrackFlow</title>
-  <link rel="stylesheet" href="/css/luxury-style.css">
+  <link rel="stylesheet" href="/css/style.css">
   <style>
     .settings-container {
       max-width: 800px;
@@ -124,20 +124,24 @@
 </head>
 <body>
   <div class="page-wrapper">
-    <nav class="dashboard-nav">
+    <nav class="navbar">
       <div class="container">
-        <div class="nav-content">
-          <div class="nav-brand">
-            <a href="/luxury-dashboard" class="nav-logo">TrackFlow</a>
-          </div>
+        <div class="navbar-content">
+          <a href="/dashboard" class="logo">UTM Tracker</a>
           
           <ul class="nav-links">
-            <li><a href="/luxury-dashboard" class="nav-link">Overview</a></li>
-            <li><a href="/luxury-campaigns" class="nav-link">Campaigns</a></li>
-            <li><a href="/luxury-analytics" class="nav-link">Analytics</a></li>
-            <li><a href="/luxury-journey" class="nav-link">Journey</a></li>
-            <li><a href="/ai-settings" class="nav-link active">AI Settings</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/journey">User Journey</a></li>
+            <li><a href="/utm-builder">UTM Builder</a></li>
+            <li><a href="/domains">Domains</a></li>
+            <li><a href="/setup-generator">Get Tracking Code</a></li>
+            <li><a href="/ai-settings" class="active">AI Settings</a></li>
           </ul>
+          
+          <div class="user-menu">
+            <span id="userName" class="text-secondary"></span>
+            <button class="btn btn-outline btn-sm" onclick="api.logout()">Logout</button>
+          </div>
         </div>
       </div>
     </nav>

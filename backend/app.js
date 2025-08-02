@@ -101,6 +101,10 @@ app.get('/domains', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/views/domains.html'));
 });
 
+app.get('/ai-settings', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/views/ai-settings.html'));
+});
+
 app.get('/campaigns', (req, res) => res.redirect('/dashboard'));
 app.get('/events', (req, res) => res.redirect('/dashboard'));
 app.get('/tracking-setup', (req, res) => res.redirect('/setup-generator'));
