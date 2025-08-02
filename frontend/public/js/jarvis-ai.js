@@ -202,32 +202,65 @@ class JarvisAI {
       // Get current dashboard data based on filters
       const params = {
         ...this.context.filters,
-        domain: this.context.filters.domain || document.getElementById('domainFilter')?.value || window.location.hostname,
+        domain: this.context.filters.domain || document.getElementById('domainSelect')?.value || '',
         startDate: this.context.filters.startDate || this.getDefaultStartDate(),
-        endDate: this.context.filters.endDate || new Date().toISOString()
+        endDate: this.context.filters.endDate || new Date().toISOString().split('T')[0]
       };
 
+      // Remove empty values
+      Object.keys(params).forEach(key => {
+        if (!params[key]) delete params[key];
+      });
+
+      console.log('Gathering data with params:', params);
+
       // Fetch relevant data
-      const [analytics, sessions, sources] = await Promise.all([
-        api.getDashboard(params),
-        api.getSessions({ ...params, limit: 10 }),
-        api.getPageAnalytics({ ...params, limit: 10 })
+      const [dashboardData, sessions, trafficSources, pagesBySource] = await Promise.all([
+        api.request(`/analytics/dashboard${this.buildQueryString(params)}`),
+        api.request(`/analytics/sessions${this.buildQueryString({ ...params, limit: 20 })}`),
+        api.request(`/analytics/sources${this.buildQueryString(params)}`),
+        api.request(`/analytics/pages-by-source${this.buildQueryString(params)}`)
       ]);
 
-      context.analytics = analytics;
-      context.sessions = sessions;
-      context.pages = sources;
+      context.analytics = {
+        totalSessions: dashboardData.totalSessions || 0,
+        uniqueVisitors: dashboardData.uniqueVisitors || 0,
+        pageViews: dashboardData.pageViews || 0,
+        avgDuration: dashboardData.avgDuration || 0,
+        conversionRate: dashboardData.conversionRate || 0,
+        bounceRate: dashboardData.bounceRate || 0
+      };
+      
+      context.sessions = sessions.sessions || [];
+      context.trafficSources = trafficSources || dashboardData.trafficSources || [];
+      context.pagesBySource = pagesBySource.pagesBySource || [];
+      context.topPages = pagesBySource.pagesBySource?.slice(0, 5) || [];
 
-      // Get user journey data if requested
-      if (this.context.currentView === 'journey') {
-        context.journeyData = await api.getFunnelAnalysis(params);
+      // Add campaign data if available
+      if (this.context.currentView === 'campaigns' || params.campaign) {
+        try {
+          const campaigns = await api.request(`/analytics/overview${this.buildQueryString(params)}`);
+          context.campaigns = campaigns;
+        } catch (e) {
+          console.log('No campaign data available');
+        }
       }
+
+      console.log('Context gathered:', context);
 
     } catch (error) {
       console.error('Error gathering context:', error);
+      // Return partial context even if some requests fail
     }
 
     return context;
+  }
+
+  buildQueryString(params) {
+    const filtered = Object.entries(params)
+      .filter(([_, value]) => value !== undefined && value !== '')
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`);
+    return filtered.length > 0 ? '?' + filtered.join('&') : '';
   }
 
   async callOpenAI(message, context) {
@@ -479,12 +512,20 @@ class JarvisAI {
   updateContext() {
     // Get current filters from dashboard
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // Also check localStorage for saved filters
+    const savedDomain = localStorage.getItem('selectedDomain');
+    const savedStartDate = localStorage.getItem('selectedStartDate');
+    const savedEndDate = localStorage.getItem('selectedEndDate');
+    
+    // Get filters from URL or localStorage
     this.context.filters = {
-      startDate: urlParams.get('startDate'),
-      endDate: urlParams.get('endDate'),
-      campaign: urlParams.get('campaign'),
-      source: urlParams.get('source'),
-      medium: urlParams.get('medium')
+      domain: urlParams.get('domain') || savedDomain || '',
+      startDate: urlParams.get('startDate') || savedStartDate || document.getElementById('startDate')?.value || '',
+      endDate: urlParams.get('endDate') || savedEndDate || document.getElementById('endDate')?.value || '',
+      campaign: urlParams.get('campaign') || '',
+      source: urlParams.get('source') || '',
+      medium: urlParams.get('medium') || ''
     };
 
     // Get current view
@@ -493,6 +534,8 @@ class JarvisAI {
     else if (path.includes('analytics')) this.context.currentView = 'analytics';
     else if (path.includes('journey')) this.context.currentView = 'journey';
     else if (path.includes('campaigns')) this.context.currentView = 'campaigns';
+    
+    console.log('Context updated:', this.context);
   }
 
   showWelcomeMessage() {

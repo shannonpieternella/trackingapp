@@ -42,14 +42,34 @@ router.post('/chat', requireAuth, aiRateLimiter, async (req, res) => {
     Current context:
     - User: ${req.user.name} (${req.user.email})
     - View: ${context.currentView || 'dashboard'}
-    - Filters: ${JSON.stringify(context.filters || {})}
-    - Analytics data: ${JSON.stringify(context.analytics || {})}
-    - Campaigns: ${JSON.stringify(context.campaigns || [])}
-    - Traffic Sources: ${JSON.stringify(context.trafficSources || [])}
+    - Date Range: ${context.filters?.startDate || 'Not set'} to ${context.filters?.endDate || 'Today'}
+    - Domain: ${context.filters?.domain || 'All domains'}
     
-    Provide insightful, actionable responses. Use emojis appropriately. Format numbers nicely.
-    When showing data, use markdown formatting. Be concise but helpful.
-    Focus on the data patterns, anomalies, and actionable insights.`;
+    Current Analytics Data:
+    - Total Sessions: ${context.analytics?.totalSessions || 0}
+    - Unique Visitors: ${context.analytics?.uniqueVisitors || 0}
+    - Page Views: ${context.analytics?.pageViews || 0}
+    - Average Session Duration: ${context.analytics?.avgDuration || 0} seconds
+    - Bounce Rate: ${context.analytics?.bounceRate || 0}%
+    - Conversion Rate: ${context.analytics?.conversionRate || 0}%
+    
+    Traffic Sources:
+    ${context.trafficSources?.map(s => `- ${s.source}/${s.medium}: ${s.sessions} sessions`).join('\n') || 'No traffic data available'}
+    
+    Top Pages:
+    ${context.topPages?.map(p => `- ${p._id}: ${p.totalVisits} visits`).join('\n') || 'No page data available'}
+    
+    Recent Sessions: ${context.sessions?.length || 0} sessions in the selected period
+    
+    Instructions:
+    - Provide insightful, actionable responses based on the actual data
+    - Use emojis appropriately (📊 for stats, 📈 for growth, 📉 for decline, etc.)
+    - Format numbers nicely (e.g., 1,234 instead of 1234)
+    - When showing data, use markdown formatting
+    - Be concise but helpful
+    - Focus on data patterns, anomalies, and actionable insights
+    - If asked about data, always reference the actual numbers from the context
+    - If there's no data (all zeros), explain that tracking might not be set up yet`;
 
     // Prepare messages
     const messages = [
